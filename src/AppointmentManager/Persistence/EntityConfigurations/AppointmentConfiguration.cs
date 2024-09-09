@@ -8,15 +8,19 @@ public class AppointmentConfiguration : IEntityTypeConfiguration<Appointment>
 {
     public void Configure(EntityTypeBuilder<Appointment> builder)
     {
-        builder.ToTable("Appointments");
-        
-        builder.Property(p => p.Id).HasColumnName("Id").IsRequired();
-        builder.Property(p => p.CreatedDate).HasColumnName("CreatedDate").IsRequired();
-        builder.Property(p => p.CreatedDate).HasColumnName("UpdatedDate");
-        builder.Property(p => p.CreatedDate).HasColumnName("DeletedDate");
-        builder.Property(p => p.StartDate).HasColumnName("StartDate").IsRequired();
-        builder.Property(p => p.EndDate).HasColumnName("EndDate").IsRequired();
+        builder.ToTable("Appointments").HasKey(a => a.Id);
 
-        builder.HasQueryFilter(p => !p.DeletedDate.HasValue);
+        builder.Property(a => a.Id).HasColumnName("Id").IsRequired();
+        builder.Property(a => a.CreatedDate).HasColumnName("CreatedDate").IsRequired();
+        builder.Property(a => a.UpdatedDate).HasColumnName("UpdatedDate");
+        builder.Property(a => a.DeletedDate).HasColumnName("DeletedDate");
+        builder.Property(a => a.ClientId).HasColumnName("ClientId").IsRequired();
+        builder.Property(a => a.StartDate).HasColumnName("StartDate").IsRequired();
+        builder.Property(a => a.EndDate).HasColumnName("EndDate").IsRequired();
+        builder.Property(a => a.Status).HasColumnName("Status").IsRequired();
+
+        builder.HasOne(a => a.Client).WithMany(c => c.Appointments).HasForeignKey(a => a.ClientId);
+
+        builder.HasQueryFilter(a => !a.DeletedDate.HasValue);
     }
 }

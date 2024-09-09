@@ -8,7 +8,7 @@ using NArchitecture.Core.Application.Requests;
 
 namespace WebApi.Controllers;
 
-[Route("api/[controller]")]
+[Route("api/appointments")]
 public class AppointmentsController : BaseController
 {
     [HttpPost]
