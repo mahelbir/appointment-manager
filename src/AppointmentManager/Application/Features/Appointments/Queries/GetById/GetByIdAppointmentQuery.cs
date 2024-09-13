@@ -1,3 +1,4 @@
+using Application.Features.Appointments.Rules;
 using Application.Services.Repositories;
 using AutoMapper;
 using MediatR;
@@ -11,11 +12,14 @@ public class GetByIdAppointmentQuery : IRequest<GetByIdAppointmentResponse>
     public class GetByIdAppointmentQueryHandler : IRequestHandler<GetByIdAppointmentQuery, GetByIdAppointmentResponse>
     {
         private readonly IAppointmentRepository _appointmentRepository;
+        private readonly AppointmentBusinessRules _appointmentBusinessRules;
         private readonly IMapper _mapper;
 
-        public GetByIdAppointmentQueryHandler(IAppointmentRepository appointmentRepository, IMapper mapper)
+        public GetByIdAppointmentQueryHandler(IAppointmentRepository appointmentRepository,
+            AppointmentBusinessRules appointmentBusinessRules, IMapper mapper)
         {
             _appointmentRepository = appointmentRepository;
+            _appointmentBusinessRules = appointmentBusinessRules;
             _mapper = mapper;
         }
 
@@ -26,6 +30,9 @@ public class GetByIdAppointmentQuery : IRequest<GetByIdAppointmentResponse>
                 predicate: p => p.Id == request.Id,
                 cancellationToken: cancellationToken
             );
+
+            await _appointmentBusinessRules.ShouldBeExistsWhenSelected(result);
+            
             var response = _mapper.Map<GetByIdAppointmentResponse>(result);
             return response;
         }

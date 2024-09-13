@@ -1,5 +1,8 @@
 using Application;
+using Microsoft.OpenApi.Any;
+using Microsoft.OpenApi.Models;
 using Persistence;
+using WebApi.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,7 +17,7 @@ builder.Services.AddDistributedMemoryCache();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerSettings();
 
 var app = builder.Build();
 

@@ -7,11 +7,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Features\Appointments\Constants\" />
-      <Folder Include="Features\Appointments\Rules\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
       <PackageReference Include="MediatR" Version="12.4.0" />
       <PackageReference Include="NArchitecture.Core.Application" Version="1.0.6" />
