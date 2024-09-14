@@ -28,8 +28,8 @@ public class GetByIdAppointmentQuery : IRequest<GetByIdAppointmentResponse>
             CancellationToken cancellationToken)
         {
             var result = await _appointmentRepository.GetAsync(
-                predicate: p => p.Id == request.Id,
-                include: p => p.Include(p => p.Client),
+                predicate: a => a.Id == request.Id,
+                include: a => a.Include(a => a.Client),
                 cancellationToken: cancellationToken
             );
 

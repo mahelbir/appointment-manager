@@ -1,22 +1,22 @@
 using Domain.Enums;
 
-namespace Application.Features.Appointments.Commands.Book;
+namespace Application.Features.Appointments.Commands.Update;
 
-public class BookedAppointmentResponse
+public class UpdatedAppointmentResponse
 {
     public int Id { get; set; }
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
     public AppointmentStatus Status { get; set; }
-    public DateTime CreatedDate { get; set; }
-    public BookedAppointmentResponseClient Client { get; set; }
-    
-    public class BookedAppointmentResponseClient
+    public DateTime UpdatedDate { get; set; }
+    public UpdatedAppointmentResponseClient Client { get; set; }
+
+    public class UpdatedAppointmentResponseClient
     {
         public int Id { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Contact { get; set; }
-        public DateTime CreatedDate { get; set; }
+        public DateTime UpdatedDate { get; set; }
     }
 }

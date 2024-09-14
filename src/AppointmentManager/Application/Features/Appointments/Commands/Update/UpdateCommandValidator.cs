@@ -1,10 +1,10 @@
 using FluentValidation;
 
-namespace Application.Features.Appointments.Commands.Book;
+namespace Application.Features.Appointments.Commands.Update;
 
-public class BookAppointmentCommandValidator : AbstractValidator<BookAppointmentCommand>
+public class UpdateAppointmentCommandValidator : AbstractValidator<UpdateAppointmentCommand>
 {
-    public BookAppointmentCommandValidator()
+    public UpdateAppointmentCommandValidator()
     {
         RuleFor(a => a.StartDate)
             .NotEmpty()

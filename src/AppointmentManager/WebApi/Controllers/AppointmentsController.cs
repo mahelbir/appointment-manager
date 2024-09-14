@@ -1,5 +1,5 @@
 using Application.Features.Appointments.Commands.Book;
-using Application.Features.Appointments.Queries.SlotList;
+using Application.Features.Appointments.Queries.Calendar;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers;
@@ -7,8 +7,8 @@ namespace WebApi.Controllers;
 [Route("api/appointments")]
 public class AppointmentsController : BaseController
 {
-    [HttpGet("slots")]
-    public async Task<IActionResult> Slots([FromQuery] SlotListAppointmentQuery query)
+    [HttpGet("calendar")]
+    public async Task<IActionResult> Calendar([FromQuery] CalendarAppointmentQuery query)
     {
         var response = await Mediator.Send(query);
         return Ok(response);

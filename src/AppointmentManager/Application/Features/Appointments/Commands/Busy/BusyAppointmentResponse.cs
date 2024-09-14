@@ -1,13 +1,13 @@
 using Domain.Enums;
-using Domain.Models;
 
-namespace Application.Features.Appointments.Queries.SlotList;
+namespace Application.Features.Appointments.Commands.Busy;
 
-public class SlotListAppointmentItemDto
+public class BusyAppointmentResponse
 {
     public int Id { get; set; }
+    public int ClientId { get; set; }
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
     public AppointmentStatus Status { get; set; }
-    public AppointmentStatusProps Props { get; set; }
+    public DateTime CreatedDate { get; set; }
 }

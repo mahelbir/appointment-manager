@@ -4,22 +4,22 @@ using AutoMapper;
 using Domain.Entities;
 using MediatR;
 
-namespace Application.Features.Appointments.Queries.SlotList;
+namespace Application.Features.Appointments.Queries.Calendar;
 
-public class SlotListAppointmentQuery : IRequest<IEnumerable<SlotListAppointmentItemDto>>
+public class CalendarAppointmentQuery : IRequest<IEnumerable<CalendarAppointmentItemDto>>
 {
     public required DateOnly StartDate { get; set; }
     public required DateOnly EndDate { get; set; }
 
     public class
-        SlotListAppointmentQueryQueryHandler : IRequestHandler<SlotListAppointmentQuery,
-        IEnumerable<SlotListAppointmentItemDto>>
+        CalendarAppointmentQueryQueryHandler : IRequestHandler<CalendarAppointmentQuery,
+        IEnumerable<CalendarAppointmentItemDto>>
     {
         private readonly IAppointmentService _appointmentService;
         private readonly AppointmentBusinessRules _appointmentBusinessRules;
         private readonly IMapper _mapper;
         
-        public SlotListAppointmentQueryQueryHandler(IAppointmentService appointmentService,
+        public CalendarAppointmentQueryQueryHandler(IAppointmentService appointmentService,
             AppointmentBusinessRules appointmentBusinessRules, IMapper mapper)
         {
             _appointmentService = appointmentService;
@@ -27,8 +27,8 @@ public class SlotListAppointmentQuery : IRequest<IEnumerable<SlotListAppointment
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<SlotListAppointmentItemDto>> Handle(
-            SlotListAppointmentQuery request,
+        public async Task<IEnumerable<CalendarAppointmentItemDto>> Handle(
+            CalendarAppointmentQuery request,
             CancellationToken cancellationToken)
         {
             await _appointmentBusinessRules.DateRangeCantTooLarge(request.StartDate, request.EndDate);
@@ -36,7 +36,7 @@ public class SlotListAppointmentQuery : IRequest<IEnumerable<SlotListAppointment
             var appointments = await _appointmentService.GetListByDateRange(request.StartDate, request.EndDate);
 
             var list =
-                _mapper.Map<IEnumerable<Appointment>, IEnumerable<SlotListAppointmentItemDto>>(
+                _mapper.Map<IEnumerable<Appointment>, IEnumerable<CalendarAppointmentItemDto>>(
                     appointments).ToList();
             foreach (var item in list)
             {

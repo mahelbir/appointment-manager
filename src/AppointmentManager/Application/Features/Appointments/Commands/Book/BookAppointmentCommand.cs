@@ -11,9 +11,9 @@ public class BookAppointmentCommand : IRequest<BookedAppointmentResponse>
 {
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
-    public ClientDto Client { get; set; }
+    public BookAppointmentCommandClient Client { get; set; }
 
-    public class ClientDto
+    public class BookAppointmentCommandClient
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }
@@ -40,6 +40,9 @@ public class BookAppointmentCommand : IRequest<BookedAppointmentResponse>
         {
             await _appointmentBusinessRules.CantPastTime(request.StartDate, request.EndDate);
             await _appointmentBusinessRules.CantOverlap(request.StartDate, request.EndDate);
+            
+            request.StartDate = request.StartDate.ToUniversalTime();
+            request.EndDate = request.EndDate.ToUniversalTime();
             
             var appointment = _mapper.Map<Appointment>(request);
             appointment.Status = AppointmentStatus.Pending;

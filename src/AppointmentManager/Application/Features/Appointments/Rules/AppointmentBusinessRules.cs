@@ -53,7 +53,7 @@ public class AppointmentBusinessRules : BaseBusinessRules
         startDate = startDate.ToUniversalTime();
         endDate = endDate.ToUniversalTime();
 
-        var row = await _appointmentRepository.Query()
+        var appointment = await _appointmentRepository.Query()
             .Where(a =>
                 _appointmentService.GetVisibleAppointmentStatuses().Contains(a.Status) &&
                 (
@@ -64,9 +64,9 @@ public class AppointmentBusinessRules : BaseBusinessRules
             )
             .FirstOrDefaultAsync();
 
-        if (row == null) return;
+        if (appointment == null) return;
 
-        if (id == 0 || id != row.Id)
+        if (id == 0 || id != appointment.Id)
         {
             throw new BusinessException(AppointmentsMessages.Overlap);
         }
