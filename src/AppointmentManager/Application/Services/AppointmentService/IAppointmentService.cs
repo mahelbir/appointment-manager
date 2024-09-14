@@ -7,6 +7,7 @@ namespace Application.Services.AppointmentService;
 public interface IAppointmentService
 {
      Task<IEnumerable<Appointment>> GetListByDateRange(DateOnly startDate, DateOnly endDate);
+     Task<IEnumerable<Appointment>> GetListDetailedByDateRange(DateOnly startDate, DateOnly endDate);
      AppointmentStatus[] GetVisibleAppointmentStatuses();
      AppointmentStatusProps GetAppointmentStatus(AppointmentStatus status);
      IDictionary<AppointmentStatus, AppointmentStatusProps> GetAppointmentStatuses();

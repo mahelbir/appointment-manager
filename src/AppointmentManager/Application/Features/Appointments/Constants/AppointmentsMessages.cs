@@ -7,5 +7,8 @@ public static class AppointmentsMessages
     public const string AppointmentStatusConfirmed = "REZERVE";
     public const string AppointmentStatusCancelled = "REDDEDİLDİ";
     
-    public const string DontExists = "Randevu bulunamadı";
+    public const string DontExists = "Randevu mevcut değil";
+    public const string PastTime = "Randevu tarihi geçmiş";
+    public const string Overlap = "Bu tarih aralığında randevu zaten mevcut";
+    public const string DateRangeTooLarge = "Tarih aralığı 1 aydan fazla olamaz";
 }

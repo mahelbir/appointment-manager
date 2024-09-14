@@ -1,5 +1,4 @@
-using Application.Features.Appointments.Commands.Create;
-using Application.Features.Appointments.Queries.GetById;
+using Application.Features.Appointments.Commands.Book;
 using Application.Features.Appointments.Queries.SlotList;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,26 +7,34 @@ namespace WebApi.Controllers;
 [Route("api/appointments")]
 public class AppointmentsController : BaseController
 {
-    [HttpGet]
-    public async Task<IActionResult> SlotList([FromQuery] SlotListAppointmentQuery query)
+    [HttpGet("slots")]
+    public async Task<IActionResult> Slots([FromQuery] SlotListAppointmentQuery query)
     {
-        var response = await Mediator.Send(query);
-        return Ok(response);
-    }
-
-    [HttpGet("{id:int}")]
-    public async Task<IActionResult> GetById([FromRoute] int id)
-    {
-        var query = new GetByIdAppointmentQuery { Id = id };
         var response = await Mediator.Send(query);
         return Ok(response);
     }
     
-    [HttpPost]
-    public async Task<IActionResult> Booking([FromBody] CreateAppointmentCommand command)
+    [HttpPost("book")]
+    public async Task<IActionResult> Book([FromBody] BookAppointmentCommand command)
     {
         var response = await Mediator.Send(command);
         return Ok(response);
+    }
+    
+    [HttpPost("receive-gc-updates")]
+    public async Task<IActionResult> ReceiveGcUpdates()
+    {
+        try
+        {
+            Request.Headers.TryGetValue("X-Goog-Channel-Token", out var token);
+           // await _appointmentService.ReceiveGcEventUpdates(token);
+        }
+        catch (Exception e)
+        {
+            return BadRequest(e.Message);
+        }
+
+        return Ok();
     }
     
 }

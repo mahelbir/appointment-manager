@@ -2,12 +2,13 @@ using Application.Features.Appointments.Rules;
 using Application.Services.Repositories;
 using AutoMapper;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace Application.Features.Appointments.Queries.GetById;
 
 public class GetByIdAppointmentQuery : IRequest<GetByIdAppointmentResponse>
 {
-    public int Id { get; set; }
+    public required int Id { get; set; }
 
     public class GetByIdAppointmentQueryHandler : IRequestHandler<GetByIdAppointmentQuery, GetByIdAppointmentResponse>
     {
@@ -28,11 +29,12 @@ public class GetByIdAppointmentQuery : IRequest<GetByIdAppointmentResponse>
         {
             var result = await _appointmentRepository.GetAsync(
                 predicate: p => p.Id == request.Id,
+                include: p => p.Include(p => p.Client),
                 cancellationToken: cancellationToken
             );
 
             await _appointmentBusinessRules.ShouldBeExistsWhenSelected(result);
-            
+
             var response = _mapper.Map<GetByIdAppointmentResponse>(result);
             return response;
         }

@@ -21,14 +21,31 @@ public class AppointmentManager : IAppointmentService
         var startTime = startDate.ToDateTime(TimeOnly.MinValue).ToUniversalTime();
         var endTime = endDate.ToDateTime(TimeOnly.MaxValue).ToUniversalTime();
 
-        return await _appointmentRepository
+        var q = _appointmentRepository
             .Query()
             .Where(a =>
                 GetVisibleAppointmentStatuses().Contains(a.Status) &&
                 a.StartDate >= startTime &&
                 a.EndDate <= endTime
-            )
-            .ToListAsync();
+            );
+        
+        return await q.ToListAsync();
+    }
+
+    public async Task<IEnumerable<Appointment>> GetListDetailedByDateRange(DateOnly startDate, DateOnly endDate)
+    {
+        var startTime = startDate.ToDateTime(TimeOnly.MinValue).ToUniversalTime();
+        var endTime = endDate.ToDateTime(TimeOnly.MaxValue).ToUniversalTime();
+
+        var q = _appointmentRepository
+            .Query()
+            .Include(a => a.Client)
+            .Where(a =>
+                a.StartDate >= startTime &&
+                a.EndDate <= endTime
+            );
+        
+        return await q.ToListAsync();
     }
 
     public AppointmentStatus[] GetVisibleAppointmentStatuses()
@@ -96,5 +113,4 @@ public class AppointmentManager : IAppointmentService
             }
         };
     }
-    
 }

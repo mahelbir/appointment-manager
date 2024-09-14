@@ -1,3 +1,4 @@
+using Application.Features.Appointments.Rules;
 using Application.Services.AppointmentService;
 using AutoMapper;
 using Domain.Entities;
@@ -7,20 +8,22 @@ namespace Application.Features.Appointments.Queries.SlotList;
 
 public class SlotListAppointmentQuery : IRequest<IEnumerable<SlotListAppointmentItemDto>>
 {
-    public DateOnly StartDate { get; set; }
-    public DateOnly EndDate { get; set; }
+    public required DateOnly StartDate { get; set; }
+    public required DateOnly EndDate { get; set; }
 
     public class
         SlotListAppointmentQueryQueryHandler : IRequestHandler<SlotListAppointmentQuery,
         IEnumerable<SlotListAppointmentItemDto>>
     {
         private readonly IAppointmentService _appointmentService;
+        private readonly AppointmentBusinessRules _appointmentBusinessRules;
         private readonly IMapper _mapper;
-
-
-        public SlotListAppointmentQueryQueryHandler(IAppointmentService appointmentService, IMapper mapper)
+        
+        public SlotListAppointmentQueryQueryHandler(IAppointmentService appointmentService,
+            AppointmentBusinessRules appointmentBusinessRules, IMapper mapper)
         {
             _appointmentService = appointmentService;
+            _appointmentBusinessRules = appointmentBusinessRules;
             _mapper = mapper;
         }
 
@@ -28,6 +31,8 @@ public class SlotListAppointmentQuery : IRequest<IEnumerable<SlotListAppointment
             SlotListAppointmentQuery request,
             CancellationToken cancellationToken)
         {
+            await _appointmentBusinessRules.DateRangeCantTooLarge(request.StartDate, request.EndDate);
+            
             var appointments = await _appointmentService.GetListByDateRange(request.StartDate, request.EndDate);
 
             var list =
