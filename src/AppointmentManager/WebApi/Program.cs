@@ -1,6 +1,5 @@
 using Application;
-using Microsoft.OpenApi.Any;
-using Microsoft.OpenApi.Models;
+using Infrastructure;
 using Persistence;
 using WebApi.Extensions;
 
@@ -9,8 +8,11 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddControllers();
+
 builder.Services.AddApplicationServices();
 builder.Services.AddPersistenceServices(builder.Configuration);
+builder.Services.AddInfrastructureServices();
+
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddDistributedMemoryCache();

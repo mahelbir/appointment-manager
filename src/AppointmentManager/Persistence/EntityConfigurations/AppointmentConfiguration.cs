@@ -18,6 +18,9 @@ public class AppointmentConfiguration : IEntityTypeConfiguration<Appointment>
         builder.Property(a => a.StartDate).HasColumnName("StartDate").IsRequired();
         builder.Property(a => a.EndDate).HasColumnName("EndDate").IsRequired();
         builder.Property(a => a.Status).HasColumnName("Status").IsRequired();
+        builder.Property(a => a.CalendarEventId).HasColumnName("CalendarEventId").IsRequired();
+        
+        builder.HasIndex(a => a.CalendarEventId).IsUnique();
 
         builder.HasOne(a => a.Client).WithMany(c => c.Appointments).HasForeignKey(a => a.ClientId);
 

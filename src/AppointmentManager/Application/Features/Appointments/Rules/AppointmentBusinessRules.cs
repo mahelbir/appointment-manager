@@ -48,6 +48,18 @@ public class AppointmentBusinessRules : BaseBusinessRules
         }
     }
 
+    public async Task CantLessTime(DateTime startDate, DateTime endDate, DateTime appointmentStartDate,
+        DateTime appointmentEndDate)
+    {
+        startDate = startDate.ToUniversalTime();
+        endDate = endDate.ToUniversalTime();
+
+        if (startDate < appointmentStartDate || endDate < appointmentEndDate)
+        {
+            throw new BusinessException(AppointmentsMessages.PastTime);
+        }
+    }
+
     public async Task CantOverlap(DateTime startDate, DateTime endDate, int id = 0)
     {
         startDate = startDate.ToUniversalTime();

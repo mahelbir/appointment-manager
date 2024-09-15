@@ -28,7 +28,7 @@ public class AppointmentManager : IAppointmentService
                 a.StartDate >= startTime &&
                 a.EndDate <= endTime
             );
-        
+
         return await q.ToListAsync();
     }
 
@@ -44,7 +44,7 @@ public class AppointmentManager : IAppointmentService
                 a.StartDate >= startTime &&
                 a.EndDate <= endTime
             );
-        
+
         return await q.ToListAsync();
     }
 
@@ -67,17 +67,6 @@ public class AppointmentManager : IAppointmentService
     {
         return new Dictionary<AppointmentStatus, AppointmentStatusProps>
         {
-            {
-                AppointmentStatus.Busy,
-                new AppointmentStatusProps
-                {
-                    Status = AppointmentStatus.Busy,
-                    ColorId = "5",
-                    ColorCode = "orange",
-                    Description = AppointmentsMessages.AppointmentStatusBusy,
-                    IsVisible = true
-                }
-            },
             {
                 AppointmentStatus.Pending,
                 new AppointmentStatusProps
@@ -109,6 +98,17 @@ public class AppointmentManager : IAppointmentService
                     ColorCode = "blue",
                     Description = AppointmentsMessages.AppointmentStatusCancelled,
                     IsVisible = false
+                }
+            },
+            {
+                AppointmentStatus.Busy,
+                new AppointmentStatusProps
+                {
+                    Status = AppointmentStatus.Busy,
+                    ColorId = "5",
+                    ColorCode = "orange",
+                    Description = AppointmentsMessages.AppointmentStatusBusy,
+                    IsVisible = true
                 }
             }
         };

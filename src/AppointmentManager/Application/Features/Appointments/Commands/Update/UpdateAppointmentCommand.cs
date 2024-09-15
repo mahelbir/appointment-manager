@@ -45,6 +45,7 @@ public class UpdateAppointmentCommand : IRequest<UpdatedAppointmentResponse>
             );
             
             await _appointmentBusinessRules.ShouldBeExistsWhenSelected(appointment);
+            await _appointmentBusinessRules.CantLessTime(request.StartDate, request.EndDate, appointment.StartDate, appointment.EndDate);
             await _appointmentBusinessRules.CantOverlap(request.StartDate, request.EndDate, appointment.Id);
 
             request.StartDate = request.StartDate.ToUniversalTime();
