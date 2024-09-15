@@ -85,7 +85,7 @@ public class GoogleCalendarServiceAdapter : IGoogleCalendarService
             },
             End = new EventDateTime()
             {
-                DateTimeDateTimeOffset = calendarEvent.StartDate.ToUniversalTime(),
+                DateTimeDateTimeOffset = calendarEvent.EndDate.ToUniversalTime(),
                 TimeZone = "UTC"
             }
         };

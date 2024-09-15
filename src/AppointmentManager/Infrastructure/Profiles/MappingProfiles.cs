@@ -14,7 +14,7 @@ public class MappingProfiles : Profile
             .ForMember(dest => dest.Color, opt => opt.MapFrom(src => src.ColorId))
             .ForMember(dest => dest.StartDate,
                 opt => opt.MapFrom(src => src.Start.DateTimeDateTimeOffset.Value.UtcDateTime))
-            .ForMember(dest => dest.StartDate,
+            .ForMember(dest => dest.EndDate,
                 opt => opt.MapFrom(src => src.End.DateTimeDateTimeOffset.Value.UtcDateTime))
             .ReverseMap()
             .ForPath(src => src.Summary, opt => opt.MapFrom(dest => dest.Title))

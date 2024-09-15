@@ -1,4 +1,5 @@
 using Application.Features.Appointments.Constants;
+using Application.Services.CalendarService;
 using Application.Services.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Domain.Entities;
@@ -10,10 +11,12 @@ namespace Application.Services.AppointmentService;
 public class AppointmentManager : IAppointmentService
 {
     private readonly IAppointmentRepository _appointmentRepository;
+    private readonly ICalendarService _calendarService;
 
-    public AppointmentManager(IAppointmentRepository appointmentRepository)
+    public AppointmentManager(IAppointmentRepository appointmentRepository, ICalendarService calendarService)
     {
         _appointmentRepository = appointmentRepository;
+        _calendarService = calendarService;
     }
 
     public async Task<IEnumerable<Appointment>> GetListByDateRange(DateOnly startDate, DateOnly endDate)
@@ -46,6 +49,23 @@ public class AppointmentManager : IAppointmentService
             );
 
         return await q.ToListAsync();
+    }
+
+    public async Task<Appointment> CreateCalendarEvent(Appointment appointment)
+    {
+        var appointmentStatusProps = GetAppointmentStatus(appointment.Status);
+        var calendarEvent = new CalendarEvent
+        {
+            Title = AppointmentsMessages.Appointment,
+            Description = $"{appointment.Client?.FullName}\n{appointment.Client?.Contact}",
+            Color = appointmentStatusProps.ColorId,
+            Status = "confirmed",
+            StartDate = appointment.StartDate,
+            EndDate = appointment.EndDate
+        };
+        calendarEvent = await _calendarService.AddEvent(calendarEvent);
+        appointment.CalendarEventId = calendarEvent.Id;
+        return appointment;
     }
 
     public AppointmentStatus[] GetVisibleAppointmentStatuses()

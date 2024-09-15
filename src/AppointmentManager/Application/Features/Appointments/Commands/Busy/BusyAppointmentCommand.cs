@@ -1,4 +1,5 @@
 using Application.Features.Appointments.Rules;
+using Application.Services.AppointmentService;
 using Application.Services.Repositories;
 using AutoMapper;
 using Domain.Entities;
@@ -16,15 +17,19 @@ public class BusyAppointmentCommand : IRequest<BusyAppointmentResponse>
     {
         private readonly IClientRepository _clientRepository;
         private readonly IAppointmentRepository _appointmentRepository;
+        private readonly IAppointmentService _appointmentService;
         private readonly AppointmentBusinessRules _appointmentBusinessRules;
         private readonly IMapper _mapper;
 
         public BusyAppointmentCommandHandler(IClientRepository clientRepository,
             IAppointmentRepository appointmentRepository,
-            AppointmentBusinessRules appointmentBusinessRules, IMapper mapper)
+            IAppointmentService appointmentService,
+            AppointmentBusinessRules appointmentBusinessRules,
+            IMapper mapper)
         {
             _clientRepository = clientRepository;
             _appointmentRepository = appointmentRepository;
+            _appointmentService = appointmentService;
             _appointmentBusinessRules = appointmentBusinessRules;
             _mapper = mapper;
         }
@@ -34,7 +39,11 @@ public class BusyAppointmentCommand : IRequest<BusyAppointmentResponse>
         {
             await _appointmentBusinessRules.CantOverlap(request.StartDate, request.EndDate);
             
-            var client = await _clientRepository.GetAsync(
+            request.StartDate = request.StartDate.ToUniversalTime();
+            request.EndDate = request.EndDate.ToUniversalTime();
+            
+            var appointment = _mapper.Map<Appointment>(request);
+            appointment.Client = await _clientRepository.GetAsync(
                 predicate: c => c.Contact == "admin@admin.com",
                 cancellationToken: cancellationToken
             ) ?? new Client
@@ -44,13 +53,9 @@ public class BusyAppointmentCommand : IRequest<BusyAppointmentResponse>
                 Contact = "admin@admin.com",
                 CreatedDate = DateTime.UtcNow
             };
-            
-            request.StartDate = request.StartDate.ToUniversalTime();
-            request.EndDate = request.EndDate.ToUniversalTime();
-
-            var appointment = _mapper.Map<Appointment>(request);
             appointment.Status = AppointmentStatus.Busy;
-            appointment.Client = client;
+            appointment.Client.CreatedDate = DateTime.UtcNow;
+            appointment = await _appointmentService.CreateCalendarEvent(appointment);
             
             await _appointmentRepository.AddAsync(appointment, cancellationToken);
 
