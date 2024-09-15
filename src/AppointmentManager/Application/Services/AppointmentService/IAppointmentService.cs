@@ -11,4 +11,5 @@ public interface IAppointmentService
      IDictionary<AppointmentStatus, AppointmentStatusProps> GetAppointmentStatuses();
      Task<IEnumerable<Appointment>> GetListByDateRange(DateOnly startDate, DateOnly endDate);
      Task<IEnumerable<Appointment>> GetListDetailedByDateRange(DateOnly startDate, DateOnly endDate);
+     Task<Appointment?> GetByCalendarEventId(string calendarEventId);
 }

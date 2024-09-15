@@ -2,7 +2,6 @@ using Application.Features.Appointments.Commands.Book;
 using Application.Features.Appointments.Commands.Receive;
 using Application.Features.Appointments.Queries.Calendar;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Primitives;
 
 namespace WebApi.Controllers;
 
@@ -24,10 +23,11 @@ public class AppointmentsController : BaseController
     }
     
     [HttpPost("receive-calendar-updates")]
+    [ApiExplorerSettings(IgnoreApi = true)]
     public async Task<IActionResult> ReceiveCalendarUpdates()
     {
         var command = new ReceiveAppointmentCommand();
-        Request.Headers.TryGetValue(command.TokenField, out StringValues token); 
+        Request.Headers.TryGetValue(command.TokenField, out var token); 
         command.TokenValue = token;
         var response = await Mediator.Send(command);
         return Ok(response);

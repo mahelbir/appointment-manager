@@ -1,5 +1,6 @@
 using Application.Features.Appointments.Rules;
 using Application.Services.AppointmentService;
+using Application.Services.CalendarControlService;
 using Application.Services.Repositories;
 using MediatR;
 
@@ -13,27 +14,29 @@ public class ReceiveAppointmentCommand : IRequest<ReceivedAppointmentResponse>
     public class
         ReceiveAppointmentCommandHandler : IRequestHandler<ReceiveAppointmentCommand, ReceivedAppointmentResponse>
     {
+        private readonly ICalendarControlService _calendarControlService;
         private readonly IAppointmentRepository _appointmentRepository;
         private readonly IAppointmentService _appointmentService;
         private readonly AppointmentBusinessRules _appointmentBusinessRules;
 
-        public ReceiveAppointmentCommandHandler(IAppointmentRepository appointmentRepository, IAppointmentService appointmentService, AppointmentBusinessRules appointmentBusinessRules)
+        public ReceiveAppointmentCommandHandler(ICalendarControlService calendarControlService,
+            IAppointmentRepository appointmentRepository, IAppointmentService appointmentService,
+            AppointmentBusinessRules appointmentBusinessRules)
         {
+            _calendarControlService = calendarControlService;
             _appointmentRepository = appointmentRepository;
             _appointmentService = appointmentService;
             _appointmentBusinessRules = appointmentBusinessRules;
         }
 
-
         public async Task<ReceivedAppointmentResponse> Handle(ReceiveAppointmentCommand request,
             CancellationToken cancellationToken)
         {
 
-            await _appointmentBusinessRules.CantEmpty(request.TokenValue);
-            await _appointmentBusinessRules.TokenShouldMatch("a", request.TokenValue);
-            
-            
-            
+            await _calendarControlService.ValidateCalendarToken(request.TokenValue ?? "");
+
+            await _calendarControlService.ReceiveCalendarEvents(cancellationToken);
+
             return new ReceivedAppointmentResponse();
         }
     }

@@ -117,5 +117,11 @@ public class AppointmentManager : IAppointmentService
         return await q.ToListAsync();
     }
 
-
+    public async Task<Appointment?> GetByCalendarEventId(string calendarEventId)
+    {
+        return await _appointmentRepository.GetAsync(
+            predicate: a => a.CalendarEventId == calendarEventId,
+            include: a => a.Include(a => a.Client)
+        );
+    }
 }

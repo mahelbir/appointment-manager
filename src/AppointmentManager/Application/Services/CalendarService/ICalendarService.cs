@@ -11,4 +11,5 @@ public interface ICalendarService
     Task<CalendarEvent> UpdateEvent(CalendarEvent calendarEvent, CancellationToken cancellationToken);
     Task<CalendarEvent> UpdateEventColor(string eventId, string color, CancellationToken cancellationToken);
     Task<CalendarEvent> GetEvent(string eventId);
+    Task<IEnumerable<CalendarEvent>> GetUpdatedEvents();
 }

@@ -1,5 +1,3 @@
-using System.Security.Cryptography;
-using System.Text;
 using AutoMapper;
 using Domain.Models;
 using Google.Apis.Auth.OAuth2;
@@ -22,7 +20,7 @@ public class GoogleCalendarServiceAdapter : IGoogleCalendarService
     {
         var serviceAccountKeyFilePath = configuration["GoogleCalendar:ServiceAccountFilePath"] ?? "";
         CalendarId = configuration["GoogleCalendar:CalendarId"] ?? "";
-        CalendarToken = GenCalendarToken();
+        CalendarToken = GetCalendarToken();
         _calendarService = Init(serviceAccountKeyFilePath);
         _mapper = mapper;
     }
@@ -45,6 +43,8 @@ public class GoogleCalendarServiceAdapter : IGoogleCalendarService
             credential = GoogleCredential.FromStream(stream)
                 .CreateScoped(GoogleCalendarService.Scope.Calendar);
         }
+        
+        //Console.WriteLine(CalendarId + " " + CalendarToken);
 
         return new GoogleCalendarService(new BaseClientService.Initializer
             {
@@ -53,21 +53,9 @@ public class GoogleCalendarServiceAdapter : IGoogleCalendarService
         );
     }
 
-    private string GenCalendarToken()
+    private string GetCalendarToken()
     {
-        var input = CalendarId + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-        using (MD5 md5 = MD5.Create())
-        {
-            byte[] inputBytes = Encoding.UTF8.GetBytes(input);
-            byte[] hashBytes = md5.ComputeHash(inputBytes);
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < hashBytes.Length; i++)
-            {
-                sb.Append(hashBytes[i].ToString("x2"));
-            }
-
-            return sb.ToString();
-        }
+        return BitConverter.ToString(System.Text.Encoding.Default.GetBytes(CalendarId));
     }
 
     private static Event EventBody(CalendarEvent calendarEvent)
