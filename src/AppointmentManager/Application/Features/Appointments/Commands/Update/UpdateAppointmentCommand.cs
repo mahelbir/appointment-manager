@@ -1,5 +1,6 @@
 using Application.Features.Appointments.Rules;
 using Application.Services.AppointmentService;
+using Application.Services.CalendarControlService;
 using Application.Services.Repositories;
 using AutoMapper;
 using MediatR;
@@ -24,15 +25,16 @@ public class UpdateAppointmentCommand : IRequest<UpdatedAppointmentResponse>
     public class UpdateAppointmentCommandHandler : IRequestHandler<UpdateAppointmentCommand, UpdatedAppointmentResponse>
     {
         private readonly IAppointmentRepository _appointmentRepository;
-        private readonly IAppointmentService _appointmentService;
+        private readonly ICalendarControlService _calendarControlService;
         private readonly AppointmentBusinessRules _appointmentBusinessRules;
         private readonly IMapper _mapper;
 
         public UpdateAppointmentCommandHandler(IAppointmentRepository appointmentRepository,
-            IAppointmentService appointmentService, AppointmentBusinessRules appointmentBusinessRules, IMapper mapper)
+            ICalendarControlService calendarControlService, AppointmentBusinessRules appointmentBusinessRules,
+            IMapper mapper)
         {
             _appointmentRepository = appointmentRepository;
-            _appointmentService = appointmentService;
+            _calendarControlService = calendarControlService;
             _appointmentBusinessRules = appointmentBusinessRules;
             _mapper = mapper;
         }
@@ -45,9 +47,10 @@ public class UpdateAppointmentCommand : IRequest<UpdatedAppointmentResponse>
                 predicate: a => a.Id == request.Id,
                 cancellationToken: cancellationToken
             );
-            
-            await _appointmentBusinessRules.ShouldBeExistsWhenSelected(appointment);
-            await _appointmentBusinessRules.CantLessTime(request.StartDate, request.EndDate, appointment.StartDate, appointment.EndDate);
+
+            await _appointmentBusinessRules.ShouldBeExists(appointment);
+            await _appointmentBusinessRules.CantLessTime(request.StartDate, request.EndDate, appointment.StartDate,
+                appointment.EndDate);
             await _appointmentBusinessRules.CantOverlap(request.StartDate, request.EndDate, appointment.Id);
 
             request.StartDate = request.StartDate.ToUniversalTime();
@@ -55,8 +58,8 @@ public class UpdateAppointmentCommand : IRequest<UpdatedAppointmentResponse>
 
             appointment = _mapper.Map(request, appointment);
             appointment.Client.UpdatedDate = DateTime.UtcNow;
-            
-            appointment = await _appointmentService.UpdateCalendarEvent(appointment, cancellationToken);
+
+            appointment = await _calendarControlService.UpdateCalendarEvent(appointment, cancellationToken);
 
             await _appointmentRepository.UpdateAsync(appointment, cancellationToken);
 

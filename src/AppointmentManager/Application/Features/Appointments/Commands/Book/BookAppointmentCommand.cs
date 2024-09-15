@@ -1,5 +1,6 @@
 using Application.Features.Appointments.Rules;
 using Application.Services.AppointmentService;
+using Application.Services.CalendarControlService;
 using Application.Services.Repositories;
 using AutoMapper;
 using Domain.Entities;
@@ -24,16 +25,16 @@ public class BookAppointmentCommand : IRequest<BookedAppointmentResponse>
     public class BookAppointmentCommandHandler : IRequestHandler<BookAppointmentCommand, BookedAppointmentResponse>
     {
         private readonly IAppointmentRepository _appointmentRepository;
-        private readonly IAppointmentService _appointmentService;
+        private readonly ICalendarControlService _calendarControlService;
         private readonly AppointmentBusinessRules _appointmentBusinessRules;
         private readonly IMapper _mapper;
 
         public BookAppointmentCommandHandler(IAppointmentRepository appointmentRepository,
-            IAppointmentService appointmentService,
-            AppointmentBusinessRules appointmentBusinessRules, IMapper mapper)
+            ICalendarControlService calendarControlService, AppointmentBusinessRules appointmentBusinessRules,
+            IMapper mapper)
         {
             _appointmentRepository = appointmentRepository;
-            _appointmentService = appointmentService;
+            _calendarControlService = calendarControlService;
             _appointmentBusinessRules = appointmentBusinessRules;
             _mapper = mapper;
         }
@@ -51,7 +52,7 @@ public class BookAppointmentCommand : IRequest<BookedAppointmentResponse>
             appointment.Status = AppointmentStatus.Pending;
             appointment.Client.CreatedDate = DateTime.UtcNow;
             
-            appointment = await _appointmentService.AddCalendarEvent(appointment, cancellationToken);
+            appointment = await _calendarControlService.AddCalendarEvent(appointment, cancellationToken);
 
             await _appointmentRepository.AddAsync(appointment, cancellationToken);
 

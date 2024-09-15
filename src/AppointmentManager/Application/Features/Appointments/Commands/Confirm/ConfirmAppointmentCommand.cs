@@ -1,5 +1,6 @@
 using Application.Features.Appointments.Rules;
 using Application.Services.AppointmentService;
+using Application.Services.CalendarControlService;
 using Application.Services.Repositories;
 using AutoMapper;
 using Domain.Enums;
@@ -15,19 +16,17 @@ public class ConfirmAppointmentCommand : IRequest<ConfirmedAppointmentResponse>
         ConfirmAppointmentCommandHandler : IRequestHandler<ConfirmAppointmentCommand, ConfirmedAppointmentResponse>
     {
         private readonly IAppointmentRepository _appointmentRepository;
-        private readonly IAppointmentService _appointmentService;
+        private readonly ICalendarControlService _calendarControlService;
         private readonly AppointmentBusinessRules _appointmentBusinessRules;
         private readonly IMapper _mapper;
 
-        public ConfirmAppointmentCommandHandler(
-            IAppointmentRepository appointmentRepository,
-            IAppointmentService appointmentService,
+        public ConfirmAppointmentCommandHandler(IAppointmentRepository appointmentRepository,
+            ICalendarControlService calendarControlService,
             AppointmentBusinessRules appointmentBusinessRules,
-            IMapper mapper
-        )
+            IMapper mapper)
         {
             _appointmentRepository = appointmentRepository;
-            _appointmentService = appointmentService;
+            _calendarControlService = calendarControlService;
             _appointmentBusinessRules = appointmentBusinessRules;
             _mapper = mapper;
         }
@@ -40,11 +39,12 @@ public class ConfirmAppointmentCommand : IRequest<ConfirmedAppointmentResponse>
                 cancellationToken: cancellationToken
             );
 
-            await _appointmentBusinessRules.ShouldBeExistsWhenSelected(appointment);
+            await _appointmentBusinessRules.ShouldBeExists(appointment);
+            await _appointmentBusinessRules.CantCancelled(appointment);
 
             appointment.Status = AppointmentStatus.Confirmed;
-
-            await _appointmentService.UpdateCalendarEventColor(
+            
+            await _calendarControlService.UpdateCalendarEventColor(
                 appointment,
                 cancellationToken
             );

@@ -2,6 +2,7 @@ using Application.Features.Appointments.Constants;
 using Application.Services.AppointmentService;
 using Application.Services.Repositories;
 using Domain.Entities;
+using Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using NArchitecture.Core.Application.Rules;
 using NArchitecture.Core.CrossCuttingConcerns.Exception.Types;
@@ -21,7 +22,7 @@ public class AppointmentBusinessRules : BaseBusinessRules
         _appointmentService = appointmentService;
     }
 
-    public async Task ShouldBeExistsWhenSelected(Appointment? appointment)
+    public async Task ShouldBeExists(Appointment? appointment)
     {
         if (appointment == null)
             throw new BusinessException(AppointmentsMessages.DontExists);
@@ -83,4 +84,29 @@ public class AppointmentBusinessRules : BaseBusinessRules
             throw new BusinessException(AppointmentsMessages.Overlap);
         }
     }
+    
+    public async Task CantCancelled(Appointment appointment)
+    {
+        if (appointment.Status == AppointmentStatus.Cancelled)
+        {
+            throw new BusinessException(AppointmentsMessages.InvalidStatus);
+        }
+    }
+    
+    public async Task CantEmpty(string? t)
+    {
+        if (string.IsNullOrEmpty(t))
+        {
+            throw new BusinessException(AppointmentsMessages.Wrong);
+        }
+    }
+    
+    public async Task TokenShouldMatch(string calendarToken, string? requestToken)
+    {
+        if (calendarToken != requestToken)
+        {
+            throw new BusinessException(AppointmentsMessages.NotMatch);
+        }
+    }
+    
 }

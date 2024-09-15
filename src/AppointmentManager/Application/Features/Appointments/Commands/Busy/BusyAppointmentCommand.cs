@@ -1,5 +1,6 @@
 using Application.Features.Appointments.Rules;
 using Application.Services.AppointmentService;
+using Application.Services.CalendarControlService;
 using Application.Services.Repositories;
 using AutoMapper;
 using Domain.Entities;
@@ -17,19 +18,15 @@ public class BusyAppointmentCommand : IRequest<BusyAppointmentResponse>
     {
         private readonly IClientRepository _clientRepository;
         private readonly IAppointmentRepository _appointmentRepository;
-        private readonly IAppointmentService _appointmentService;
+        private readonly ICalendarControlService _calendarControlService;
         private readonly AppointmentBusinessRules _appointmentBusinessRules;
         private readonly IMapper _mapper;
 
-        public BusyAppointmentCommandHandler(IClientRepository clientRepository,
-            IAppointmentRepository appointmentRepository,
-            IAppointmentService appointmentService,
-            AppointmentBusinessRules appointmentBusinessRules,
-            IMapper mapper)
+        public BusyAppointmentCommandHandler(IClientRepository clientRepository, IAppointmentRepository appointmentRepository, ICalendarControlService calendarControlService, AppointmentBusinessRules appointmentBusinessRules, IMapper mapper)
         {
             _clientRepository = clientRepository;
             _appointmentRepository = appointmentRepository;
-            _appointmentService = appointmentService;
+            _calendarControlService = calendarControlService;
             _appointmentBusinessRules = appointmentBusinessRules;
             _mapper = mapper;
         }
@@ -56,7 +53,7 @@ public class BusyAppointmentCommand : IRequest<BusyAppointmentResponse>
             appointment.Status = AppointmentStatus.Busy;
             appointment.Client.CreatedDate = DateTime.UtcNow;
             
-            appointment = await _appointmentService.AddCalendarEvent(appointment, cancellationToken);
+            appointment = await _calendarControlService.AddCalendarEvent(appointment, cancellationToken);
             
             await _appointmentRepository.AddAsync(appointment, cancellationToken);
 

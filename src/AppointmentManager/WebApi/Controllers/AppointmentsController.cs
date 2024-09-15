@@ -1,6 +1,8 @@
 using Application.Features.Appointments.Commands.Book;
+using Application.Features.Appointments.Commands.Receive;
 using Application.Features.Appointments.Queries.Calendar;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Primitives;
 
 namespace WebApi.Controllers;
 
@@ -24,17 +26,11 @@ public class AppointmentsController : BaseController
     [HttpPost("receive-calendar-updates")]
     public async Task<IActionResult> ReceiveCalendarUpdates()
     {
-        try
-        {
-            Request.Headers.TryGetValue("X-Goog-Channel-Token", out var token);
-           // await _appointmentService.ReceiveGcEventUpdates(token);
-        }
-        catch (Exception e)
-        {
-            return BadRequest(e.Message);
-        }
-
-        return Ok();
+        var command = new ReceiveAppointmentCommand();
+        Request.Headers.TryGetValue(command.TokenField, out StringValues token); 
+        command.TokenValue = token;
+        var response = await Mediator.Send(command);
+        return Ok(response);
     }
     
 }

@@ -1,5 +1,6 @@
 using System.Reflection;
 using Application.Services.AppointmentService;
+using Application.Services.CalendarControlService;
 using Application.Services.CalendarSyncService;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,6 +16,7 @@ public static class ApplicationServiceRegistration
         services.AddHostedService<CalendarSyncBackgroundService>();
         
         services.AddScoped<IAppointmentService, AppointmentManager>();
+        services.AddScoped<ICalendarControlService, CalendarControlManager>();
 
         services.AddAutoMapper(Assembly.GetExecutingAssembly());
 

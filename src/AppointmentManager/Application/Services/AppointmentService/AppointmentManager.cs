@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore;
 using Domain.Entities;
 using Domain.Enums;
 using Domain.Models;
-using NArchitecture.Core.CrossCuttingConcerns.Exception.Types;
 
 namespace Application.Services.AppointmentService;
 
@@ -18,86 +17,6 @@ public class AppointmentManager : IAppointmentService
     {
         _appointmentRepository = appointmentRepository;
         _calendarService = calendarService;
-    }
-
-    public async Task<IEnumerable<Appointment>> GetListByDateRange(DateOnly startDate, DateOnly endDate)
-    {
-        var startTime = startDate.ToDateTime(TimeOnly.MinValue).ToUniversalTime();
-        var endTime = endDate.ToDateTime(TimeOnly.MaxValue).ToUniversalTime();
-
-        var q = _appointmentRepository
-            .Query()
-            .Where(a =>
-                GetVisibleAppointmentStatuses().Contains(a.Status) &&
-                a.StartDate >= startTime &&
-                a.EndDate <= endTime
-            );
-
-        return await q.ToListAsync();
-    }
-
-    public async Task<IEnumerable<Appointment>> GetListDetailedByDateRange(DateOnly startDate, DateOnly endDate)
-    {
-        var startTime = startDate.ToDateTime(TimeOnly.MinValue).ToUniversalTime();
-        var endTime = endDate.ToDateTime(TimeOnly.MaxValue).ToUniversalTime();
-
-        var q = _appointmentRepository
-            .Query()
-            .Include(a => a.Client)
-            .Where(a =>
-                a.StartDate >= startTime &&
-                a.EndDate <= endTime
-            );
-
-        return await q.ToListAsync();
-    }
-
-    private CalendarEvent CreateCalendarEvent(Appointment appointment)
-    {
-        var appointmentStatusProps = GetAppointmentStatus(appointment.Status);
-        var calendarEvent = new CalendarEvent
-        {
-            Title = AppointmentsMessages.Appointment,
-            Description = $"{appointment.Client?.FullName}\n{appointment.Client?.Contact}",
-            Color = appointmentStatusProps.ColorId,
-            Status = "confirmed",
-            StartDate = appointment.StartDate,
-            EndDate = appointment.EndDate
-        };
-        return calendarEvent;
-    }
-
-    public async Task<Appointment> AddCalendarEvent(Appointment appointment, CancellationToken cancellationToken)
-    {
-        var calendarEvent = CreateCalendarEvent(appointment);
-        calendarEvent = await _calendarService.AddEvent(calendarEvent, cancellationToken);
-        appointment.CalendarEventId = calendarEvent.Id;
-        return appointment;
-    }
-
-    public async Task<Appointment> UpdateCalendarEvent(Appointment appointment, CancellationToken cancellationToken)
-    {
-        var calendarEvent = CreateCalendarEvent(appointment);
-        calendarEvent.Id = appointment.CalendarEventId;
-        await _calendarService.UpdateEvent(calendarEvent, cancellationToken);
-        return appointment;
-    }
-
-    public async Task DeleteCalendarEvent(Appointment appointment, CancellationToken cancellationToken)
-    {
-        await _calendarService.DeleteEvent(appointment.CalendarEventId, cancellationToken);
-    }
-
-    public async Task UpdateCalendarEventColor(Appointment appointment, CancellationToken cancellationToken)
-    {
-        var appointmentStatusProps = GetAppointmentStatus(appointment.Status);
-        var color = appointmentStatusProps.ColorId;
-        var calendarEvent =
-            await _calendarService.UpdateEventColor(appointment.CalendarEventId, color, cancellationToken);
-        if (!calendarEvent.Color.Equals(color))
-        {
-            throw new BusinessException(AppointmentsMessages.FailedColorUpdate);
-        }
     }
 
     public AppointmentStatus[] GetVisibleAppointmentStatuses()
@@ -165,4 +84,38 @@ public class AppointmentManager : IAppointmentService
             }
         };
     }
+
+    public async Task<IEnumerable<Appointment>> GetListByDateRange(DateOnly startDate, DateOnly endDate)
+    {
+        var startTime = startDate.ToDateTime(TimeOnly.MinValue).ToUniversalTime();
+        var endTime = endDate.ToDateTime(TimeOnly.MaxValue).ToUniversalTime();
+
+        var q = _appointmentRepository
+            .Query()
+            .Where(a =>
+                GetVisibleAppointmentStatuses().Contains(a.Status) &&
+                a.StartDate >= startTime &&
+                a.EndDate <= endTime
+            );
+
+        return await q.ToListAsync();
+    }
+
+    public async Task<IEnumerable<Appointment>> GetListDetailedByDateRange(DateOnly startDate, DateOnly endDate)
+    {
+        var startTime = startDate.ToDateTime(TimeOnly.MinValue).ToUniversalTime();
+        var endTime = endDate.ToDateTime(TimeOnly.MaxValue).ToUniversalTime();
+
+        var q = _appointmentRepository
+            .Query()
+            .Include(a => a.Client)
+            .Where(a =>
+                a.StartDate >= startTime &&
+                a.EndDate <= endTime
+            );
+
+        return await q.ToListAsync();
+    }
+
+
 }

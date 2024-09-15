@@ -33,7 +33,7 @@ public class GetByIdAppointmentQuery : IRequest<GetByIdAppointmentResponse>
                 cancellationToken: cancellationToken
             );
 
-            await _appointmentBusinessRules.ShouldBeExistsWhenSelected(result);
+            await _appointmentBusinessRules.ShouldBeExists(result);
 
             var response = _mapper.Map<GetByIdAppointmentResponse>(result);
             return response;
