@@ -1,5 +1,6 @@
 using System.Reflection;
 using Application.Services.AppointmentService;
+using Application.Services.CalendarSyncService;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using NArchitecture.Core.Application.Pipelines.Validation;
@@ -11,6 +12,8 @@ public static class ApplicationServiceRegistration
 {
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
+        services.AddHostedService<CalendarSyncBackgroundService>();
+        
         services.AddScoped<IAppointmentService, AppointmentManager>();
 
         services.AddAutoMapper(Assembly.GetExecutingAssembly());

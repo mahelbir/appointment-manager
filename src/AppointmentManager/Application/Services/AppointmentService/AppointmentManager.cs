@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Domain.Entities;
 using Domain.Enums;
 using Domain.Models;
+using NArchitecture.Core.CrossCuttingConcerns.Exception.Types;
 
 namespace Application.Services.AppointmentService;
 
@@ -51,7 +52,7 @@ public class AppointmentManager : IAppointmentService
         return await q.ToListAsync();
     }
 
-    public async Task<Appointment> CreateCalendarEvent(Appointment appointment)
+    private CalendarEvent CreateCalendarEvent(Appointment appointment)
     {
         var appointmentStatusProps = GetAppointmentStatus(appointment.Status);
         var calendarEvent = new CalendarEvent
@@ -63,9 +64,40 @@ public class AppointmentManager : IAppointmentService
             StartDate = appointment.StartDate,
             EndDate = appointment.EndDate
         };
-        calendarEvent = await _calendarService.AddEvent(calendarEvent);
+        return calendarEvent;
+    }
+
+    public async Task<Appointment> AddCalendarEvent(Appointment appointment, CancellationToken cancellationToken)
+    {
+        var calendarEvent = CreateCalendarEvent(appointment);
+        calendarEvent = await _calendarService.AddEvent(calendarEvent, cancellationToken);
         appointment.CalendarEventId = calendarEvent.Id;
         return appointment;
+    }
+
+    public async Task<Appointment> UpdateCalendarEvent(Appointment appointment, CancellationToken cancellationToken)
+    {
+        var calendarEvent = CreateCalendarEvent(appointment);
+        calendarEvent.Id = appointment.CalendarEventId;
+        await _calendarService.UpdateEvent(calendarEvent, cancellationToken);
+        return appointment;
+    }
+
+    public async Task DeleteCalendarEvent(Appointment appointment, CancellationToken cancellationToken)
+    {
+        await _calendarService.DeleteEvent(appointment.CalendarEventId, cancellationToken);
+    }
+
+    public async Task UpdateCalendarEventColor(Appointment appointment, CancellationToken cancellationToken)
+    {
+        var appointmentStatusProps = GetAppointmentStatus(appointment.Status);
+        var color = appointmentStatusProps.ColorId;
+        var calendarEvent =
+            await _calendarService.UpdateEventColor(appointment.CalendarEventId, color, cancellationToken);
+        if (!calendarEvent.Color.Equals(color))
+        {
+            throw new BusinessException(AppointmentsMessages.FailedColorUpdate);
+        }
     }
 
     public AppointmentStatus[] GetVisibleAppointmentStatuses()

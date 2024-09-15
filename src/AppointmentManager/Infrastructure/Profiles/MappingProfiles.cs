@@ -1,5 +1,6 @@
 using AutoMapper;
 using Domain.Models;
+using Infrastructure.Adapters.CalendarService.GoogleCalendar;
 
 namespace Infrastructure.Profiles;
 

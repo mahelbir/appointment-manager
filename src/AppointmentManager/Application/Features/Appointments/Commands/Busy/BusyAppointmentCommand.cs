@@ -55,7 +55,8 @@ public class BusyAppointmentCommand : IRequest<BusyAppointmentResponse>
             };
             appointment.Status = AppointmentStatus.Busy;
             appointment.Client.CreatedDate = DateTime.UtcNow;
-            appointment = await _appointmentService.CreateCalendarEvent(appointment);
+            
+            appointment = await _appointmentService.AddCalendarEvent(appointment, cancellationToken);
             
             await _appointmentRepository.AddAsync(appointment, cancellationToken);
 

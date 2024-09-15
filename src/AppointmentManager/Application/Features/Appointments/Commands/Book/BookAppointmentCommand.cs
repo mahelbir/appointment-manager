@@ -50,7 +50,8 @@ public class BookAppointmentCommand : IRequest<BookedAppointmentResponse>
             var appointment = _mapper.Map<Appointment>(request);
             appointment.Status = AppointmentStatus.Pending;
             appointment.Client.CreatedDate = DateTime.UtcNow;
-            appointment = await _appointmentService.CreateCalendarEvent(appointment);
+            
+            appointment = await _appointmentService.AddCalendarEvent(appointment, cancellationToken);
 
             await _appointmentRepository.AddAsync(appointment, cancellationToken);
 

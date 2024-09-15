@@ -6,9 +6,9 @@ public interface ICalendarService
 {
     string CalendarId { get; }
     string CalendarToken { get; }
-    Task<CalendarEvent> AddEvent(CalendarEvent calendarEvent);
-    Task DeleteEvent(string eventId);
+    Task<CalendarEvent> AddEvent(CalendarEvent calendarEvent, CancellationToken cancellationToken);
+    Task DeleteEvent(string eventId, CancellationToken cancellationToken);
+    Task<CalendarEvent> UpdateEvent(CalendarEvent calendarEvent, CancellationToken cancellationToken);
+    Task<CalendarEvent> UpdateEventColor(string eventId, string color, CancellationToken cancellationToken);
     Task<CalendarEvent> GetEvent(string eventId);
-    Task<CalendarEvent> UpdateEvent(CalendarEvent calendarEvent);
-    Task<CalendarEvent> UpdateEventColor(string eventId, string color);
 }

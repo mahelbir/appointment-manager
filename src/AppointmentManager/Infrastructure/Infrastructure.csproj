@@ -8,7 +8,6 @@
 
     <ItemGroup>
       <PackageReference Include="Google.Apis.Calendar.v3" Version="1.68.0.3473" />
-      <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.0" />
     </ItemGroup>
 
     <ItemGroup>

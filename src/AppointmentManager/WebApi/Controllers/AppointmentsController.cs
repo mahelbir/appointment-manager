@@ -21,8 +21,8 @@ public class AppointmentsController : BaseController
         return Ok(response);
     }
     
-    [HttpPost("receive-gc-updates")]
-    public async Task<IActionResult> ReceiveGcUpdates()
+    [HttpPost("receive-calendar-updates")]
+    public async Task<IActionResult> ReceiveCalendarUpdates()
     {
         try
         {

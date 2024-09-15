@@ -1,4 +1,5 @@
 using Application.Features.Appointments.Rules;
+using Application.Services.AppointmentService;
 using Application.Services.Repositories;
 using AutoMapper;
 using Domain.Enums;
@@ -13,13 +14,19 @@ public class CancelAppointmentCommand : IRequest<CanceledAppointmentResponse>
     public class CancelAppointmentCommandHandler : IRequestHandler<CancelAppointmentCommand, CanceledAppointmentResponse>
     {
         private readonly IAppointmentRepository _appointmentRepository;
+        private readonly IAppointmentService _appointmentService;
         private readonly AppointmentBusinessRules _appointmentBusinessRules;
         private readonly IMapper _mapper;
 
-        public CancelAppointmentCommandHandler(IAppointmentRepository appointmentRepository,
-            AppointmentBusinessRules appointmentBusinessRules, IMapper mapper)
+        public CancelAppointmentCommandHandler(
+            IAppointmentRepository appointmentRepository,
+            IAppointmentService appointmentService,
+            AppointmentBusinessRules appointmentBusinessRules,
+            IMapper mapper
+        )
         {
             _appointmentRepository = appointmentRepository;
+            _appointmentService = appointmentService;
             _appointmentBusinessRules = appointmentBusinessRules;
             _mapper = mapper;
         }
@@ -35,6 +42,8 @@ public class CancelAppointmentCommand : IRequest<CanceledAppointmentResponse>
             await _appointmentBusinessRules.ShouldBeExistsWhenSelected(appointment);
 
             appointment.Status = AppointmentStatus.Cancelled;
+            
+            await _appointmentService.DeleteCalendarEvent(appointment, cancellationToken);
             
             await _appointmentRepository.UpdateAsync(appointment, cancellationToken);
 

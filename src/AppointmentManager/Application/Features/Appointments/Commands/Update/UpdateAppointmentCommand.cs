@@ -1,4 +1,5 @@
 using Application.Features.Appointments.Rules;
+using Application.Services.AppointmentService;
 using Application.Services.Repositories;
 using AutoMapper;
 using MediatR;
@@ -23,17 +24,18 @@ public class UpdateAppointmentCommand : IRequest<UpdatedAppointmentResponse>
     public class UpdateAppointmentCommandHandler : IRequestHandler<UpdateAppointmentCommand, UpdatedAppointmentResponse>
     {
         private readonly IAppointmentRepository _appointmentRepository;
+        private readonly IAppointmentService _appointmentService;
         private readonly AppointmentBusinessRules _appointmentBusinessRules;
         private readonly IMapper _mapper;
 
         public UpdateAppointmentCommandHandler(IAppointmentRepository appointmentRepository,
-            AppointmentBusinessRules appointmentBusinessRules, IMapper mapper)
+            IAppointmentService appointmentService, AppointmentBusinessRules appointmentBusinessRules, IMapper mapper)
         {
             _appointmentRepository = appointmentRepository;
+            _appointmentService = appointmentService;
             _appointmentBusinessRules = appointmentBusinessRules;
             _mapper = mapper;
         }
-
 
         public async Task<UpdatedAppointmentResponse> Handle(UpdateAppointmentCommand request,
             CancellationToken cancellationToken)
@@ -53,6 +55,8 @@ public class UpdateAppointmentCommand : IRequest<UpdatedAppointmentResponse>
 
             appointment = _mapper.Map(request, appointment);
             appointment.Client.UpdatedDate = DateTime.UtcNow;
+            
+            appointment = await _appointmentService.UpdateCalendarEvent(appointment, cancellationToken);
 
             await _appointmentRepository.UpdateAsync(appointment, cancellationToken);
 
