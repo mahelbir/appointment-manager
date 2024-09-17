@@ -29,7 +29,6 @@ public class GetByIdAppointmentQuery : IRequest<GetByIdAppointmentResponse>
         {
             var result = await _appointmentRepository.GetAsync(
                 predicate: a => a.Id == request.Id,
-                include: a => a.Include(a => a.Client),
                 cancellationToken: cancellationToken
             );
 

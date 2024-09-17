@@ -1,3 +1,4 @@
+using Application.Features.Clients.Queries.GetById;
 using Domain.Enums;
 
 namespace Application.Features.Appointments.Commands.Book;
@@ -9,14 +10,5 @@ public class BookedAppointmentResponse
     public DateTime EndDate { get; set; }
     public AppointmentStatus Status { get; set; }
     public DateTime CreatedDate { get; set; }
-    public BookedAppointmentResponseClient Client { get; set; }
-    
-    public class BookedAppointmentResponseClient
-    {
-        public int Id { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string Contact { get; set; }
-        public DateTime CreatedDate { get; set; }
-    }
+    public GetByIdClientResponse Client { get; set; }
 }

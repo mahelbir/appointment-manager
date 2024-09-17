@@ -5,10 +5,11 @@ using Application.Features.Appointments.Commands.Confirm;
 using Application.Features.Appointments.Commands.Update;
 using Application.Features.Appointments.Queries.GetById;
 using Application.Features.Appointments.Queries.GetList;
-using Application.Features.Appointments.Queries.Calendar;
-using Application.Features.Appointments.Queries.CalendarAdmin;
+using Application.Features.Appointments.Queries.GetCalendar;
+using Application.Features.Appointments.Queries.GetDetailedCalendar;
 using AutoMapper;
 using Domain.Entities;
+using Domain.Models;
 using NArchitecture.Core.Application.Responses;
 using NArchitecture.Core.Persistence.Paging;
 
@@ -18,10 +19,10 @@ public class MappingProfiles : Profile
 {
     public MappingProfiles()
     {
+        CreateMap<Appointment, CalendarAppointment>().ReverseMap();
         
         CreateMap<Client, BookAppointmentCommand.BookAppointmentCommandClient>().ReverseMap();
         CreateMap<Appointment, BookAppointmentCommand>().ReverseMap();
-        CreateMap<Client, BookedAppointmentResponse.BookedAppointmentResponseClient>().ReverseMap();
         CreateMap<Appointment, BookedAppointmentResponse>().ReverseMap();
         
         CreateMap<Appointment, BusyAppointmentCommand>().ReverseMap();
@@ -29,7 +30,6 @@ public class MappingProfiles : Profile
         
         CreateMap<Client, UpdateAppointmentCommand.UpdateAppointmentCommandClient>().ReverseMap();
         CreateMap<Appointment, UpdateAppointmentCommand>().ReverseMap();
-        CreateMap<Client, UpdatedAppointmentResponse.UpdatedAppointmentResponseClient>().ReverseMap();
         CreateMap<Appointment, UpdatedAppointmentResponse>().ReverseMap();
         
         CreateMap<Appointment, CanceledAppointmentResponse>().ReverseMap();
@@ -39,12 +39,10 @@ public class MappingProfiles : Profile
         CreateMap<Appointment, GetListAppointmentListItemDto>().ReverseMap();
         CreateMap<IPaginate<Appointment>, GetListResponse<GetListAppointmentListItemDto>>().ReverseMap();
         
-        CreateMap<Client, GetByIdAppointmentResponse.ClientDto>().ReverseMap();
         CreateMap<Appointment, GetByIdAppointmentResponse>().ReverseMap();
         
-        CreateMap<Appointment, CalendarAppointmentItemDto>().ReverseMap();
+        CreateMap<Appointment, GetCalendarAppointmentListItemDto>().ReverseMap();
         
-        CreateMap<Client, CalendarAdminAppointmentItemDto.ClientDto>().ReverseMap();
-        CreateMap<Appointment, CalendarAdminAppointmentItemDto>().ReverseMap();
+        CreateMap<Appointment, GetDetailedCalendarAppointmentListItemDto>().ReverseMap();
     }
 }

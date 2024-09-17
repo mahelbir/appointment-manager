@@ -1,15 +1,8 @@
-using Domain.Enums;
+using Application.Features.Appointments.Queries.GetById;
 
 namespace Application.Features.Appointments.Queries.GetList;
 
-public class GetListAppointmentListItemDto
+public class GetListAppointmentListItemDto: GetByIdAppointmentResponse
 {
-    public int Id { get; set; }
-    public int ClientId { get; set; }
-    public DateTime StartDate { get; set; }
-    public DateTime EndDate { get; set; }
-    public DateTime CreatedDate { get; set; }
-    public DateTime? UpdatedDate { get; set; }
-    public DateTime? DeletedDate { get; set; }
-    public AppointmentStatus Status { get; set; }
+    
 }

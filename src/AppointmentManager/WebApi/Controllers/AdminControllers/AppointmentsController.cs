@@ -4,7 +4,7 @@ using Application.Features.Appointments.Commands.Confirm;
 using Application.Features.Appointments.Commands.Update;
 using Application.Features.Appointments.Queries.GetById;
 using Application.Features.Appointments.Queries.GetList;
-using Application.Features.Appointments.Queries.CalendarAdmin;
+using Application.Features.Appointments.Queries.GetDetailedCalendar;
 using Microsoft.AspNetCore.Mvc;
 using NArchitecture.Core.Application.Requests;
 
@@ -39,13 +39,13 @@ public class AppointmentsController : BaseController
     }
     
     [HttpGet("calendar")]
-    public async Task<IActionResult> Calendar([FromQuery] CalendarAdminAppointmentQuery query)
+    public async Task<IActionResult> Calendar([FromQuery] GetDetailedCalendarAppointmentQuery query)
     {
         var response = await Mediator.Send(query);
         return Ok(response);
     }
     
-    [HttpPost("busy")]
+    [HttpPost]
     public async Task<IActionResult> Busy([FromBody] BusyAppointmentCommand command)
     {
         var response = await Mediator.Send(command);

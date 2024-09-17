@@ -12,8 +12,8 @@ public static class InfrastructureServiceRegistration
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services)
     {
         services.AddSingleton<ICalendarService, GoogleCalendarServiceAdapter>();
-        services.AddSingleton<IGoogleCalendarService, GoogleCalendarServiceAdapter>();
         services.AddSingleton<ICalendarSyncService, GoogleCalendarSyncServiceAdapter>();
+        services.AddSingleton<IGoogleCalendarService, GoogleCalendarServiceAdapter>();
         
         services.AddAutoMapper(Assembly.GetExecutingAssembly());
         

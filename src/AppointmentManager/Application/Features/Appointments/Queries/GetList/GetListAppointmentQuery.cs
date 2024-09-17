@@ -37,8 +37,7 @@ public class GetListAppointmentQuery : IRequest<GetListResponse<GetListAppointme
                 cancellationToken: cancellationToken
             );
 
-            GetListResponse<GetListAppointmentListItemDto> response =
-                _mapper.Map<GetListResponse<GetListAppointmentListItemDto>>(users);
+            var response = _mapper.Map<GetListResponse<GetListAppointmentListItemDto>>(users);
             return response;
         }
     }

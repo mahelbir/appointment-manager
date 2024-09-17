@@ -1,5 +1,4 @@
 using Application.Features.Appointments.Rules;
-using Application.Services.AppointmentService;
 using Application.Services.CalendarControlService;
 using Application.Services.Repositories;
 using AutoMapper;

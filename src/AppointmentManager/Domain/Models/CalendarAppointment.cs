@@ -1,9 +1,8 @@
 using Domain.Enums;
-using Domain.Models;
 
-namespace Application.Features.Appointments.Queries.Calendar;
+namespace Domain.Models;
 
-public class CalendarAppointmentItemDto
+public class CalendarAppointment
 {
     public int Id { get; set; }
     public DateTime StartDate { get; set; }

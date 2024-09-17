@@ -4,16 +4,16 @@ using AutoMapper;
 using Domain.Entities;
 using MediatR;
 
-namespace Application.Features.Appointments.Queries.Calendar;
+namespace Application.Features.Appointments.Queries.GetCalendar;
 
-public class CalendarAppointmentQuery : IRequest<IEnumerable<CalendarAppointmentItemDto>>
+public class GetCalendarAppointmentQuery : IRequest<IEnumerable<GetCalendarAppointmentListItemDto>>
 {
     public required DateOnly StartDate { get; set; }
     public required DateOnly EndDate { get; set; }
 
     public class
-        CalendarAppointmentQueryQueryHandler : IRequestHandler<CalendarAppointmentQuery,
-        IEnumerable<CalendarAppointmentItemDto>>
+        CalendarAppointmentQueryQueryHandler : IRequestHandler<GetCalendarAppointmentQuery,
+        IEnumerable<GetCalendarAppointmentListItemDto>>
     {
         private readonly IAppointmentService _appointmentService;
         private readonly AppointmentBusinessRules _appointmentBusinessRules;
@@ -27,8 +27,8 @@ public class CalendarAppointmentQuery : IRequest<IEnumerable<CalendarAppointment
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<CalendarAppointmentItemDto>> Handle(
-            CalendarAppointmentQuery request,
+        public async Task<IEnumerable<GetCalendarAppointmentListItemDto>> Handle(
+            GetCalendarAppointmentQuery request,
             CancellationToken cancellationToken)
         {
             await _appointmentBusinessRules.DateRangeCantTooLarge(request.StartDate, request.EndDate);
@@ -36,8 +36,8 @@ public class CalendarAppointmentQuery : IRequest<IEnumerable<CalendarAppointment
             var appointments = await _appointmentService.GetListByDateRange(request.StartDate, request.EndDate);
 
             var list =
-                _mapper.Map<IEnumerable<Appointment>, IEnumerable<CalendarAppointmentItemDto>>(
-                    appointments).ToList();
+                _mapper.Map<IEnumerable<Appointment>, List<GetCalendarAppointmentListItemDto>>(
+                    appointments);
             foreach (var item in list)
             {
                 item.Props = _appointmentService.GetAppointmentStatus(item.Status);

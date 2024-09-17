@@ -3,16 +3,16 @@ using AutoMapper;
 using Domain.Entities;
 using MediatR;
 
-namespace Application.Features.Appointments.Queries.CalendarAdmin;
+namespace Application.Features.Appointments.Queries.GetDetailedCalendar;
 
-public class CalendarAdminAppointmentQuery : IRequest<IEnumerable<CalendarAdminAppointmentItemDto>>
+public class GetDetailedCalendarAppointmentQuery : IRequest<IEnumerable<GetDetailedCalendarAppointmentListItemDto>>
 {
     public required DateOnly StartDate { get; set; }
     public required DateOnly EndDate { get; set; }
 
     public class
-        CalendarAdminAppointmentQueryQueryHandler : IRequestHandler<CalendarAdminAppointmentQuery,
-        IEnumerable<CalendarAdminAppointmentItemDto>>
+        CalendarAdminAppointmentQueryQueryHandler : IRequestHandler<GetDetailedCalendarAppointmentQuery,
+        IEnumerable<GetDetailedCalendarAppointmentListItemDto>>
     {
         private readonly IAppointmentService _appointmentService;
         private readonly IMapper _mapper;
@@ -24,15 +24,15 @@ public class CalendarAdminAppointmentQuery : IRequest<IEnumerable<CalendarAdminA
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<CalendarAdminAppointmentItemDto>> Handle(
-            CalendarAdminAppointmentQuery request,
+        public async Task<IEnumerable<GetDetailedCalendarAppointmentListItemDto>> Handle(
+            GetDetailedCalendarAppointmentQuery request,
             CancellationToken cancellationToken)
         {
             var appointments = await _appointmentService.GetListDetailedByDateRange(request.StartDate, request.EndDate);
 
             var list =
-                _mapper.Map<IEnumerable<Appointment>, IEnumerable<CalendarAdminAppointmentItemDto>>(
-                    appointments).ToList();
+                _mapper.Map<IEnumerable<Appointment>, List<GetDetailedCalendarAppointmentListItemDto>>(
+                    appointments);
             foreach (var item in list)
             {
                 item.Props = _appointmentService.GetAppointmentStatus(item.Status);

@@ -1,7 +1,4 @@
-using Application.Features.Appointments.Rules;
-using Application.Services.AppointmentService;
 using Application.Services.CalendarControlService;
-using Application.Services.Repositories;
 using MediatR;
 
 namespace Application.Features.Appointments.Commands.Receive;
@@ -15,18 +12,10 @@ public class ReceiveAppointmentCommand : IRequest<ReceivedAppointmentResponse>
         ReceiveAppointmentCommandHandler : IRequestHandler<ReceiveAppointmentCommand, ReceivedAppointmentResponse>
     {
         private readonly ICalendarControlService _calendarControlService;
-        private readonly IAppointmentRepository _appointmentRepository;
-        private readonly IAppointmentService _appointmentService;
-        private readonly AppointmentBusinessRules _appointmentBusinessRules;
 
-        public ReceiveAppointmentCommandHandler(ICalendarControlService calendarControlService,
-            IAppointmentRepository appointmentRepository, IAppointmentService appointmentService,
-            AppointmentBusinessRules appointmentBusinessRules)
+        public ReceiveAppointmentCommandHandler(ICalendarControlService calendarControlService)
         {
             _calendarControlService = calendarControlService;
-            _appointmentRepository = appointmentRepository;
-            _appointmentService = appointmentService;
-            _appointmentBusinessRules = appointmentBusinessRules;
         }
 
         public async Task<ReceivedAppointmentResponse> Handle(ReceiveAppointmentCommand request,
@@ -34,7 +23,6 @@ public class ReceiveAppointmentCommand : IRequest<ReceivedAppointmentResponse>
         {
 
             await _calendarControlService.ValidateCalendarToken(request.TokenValue ?? "");
-
             await _calendarControlService.ReceiveCalendarEvents(cancellationToken);
 
             return new ReceivedAppointmentResponse();

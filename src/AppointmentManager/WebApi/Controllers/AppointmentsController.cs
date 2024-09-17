@@ -1,6 +1,6 @@
 using Application.Features.Appointments.Commands.Book;
 using Application.Features.Appointments.Commands.Receive;
-using Application.Features.Appointments.Queries.Calendar;
+using Application.Features.Appointments.Queries.GetCalendar;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers;
@@ -9,13 +9,13 @@ namespace WebApi.Controllers;
 public class AppointmentsController : BaseController
 {
     [HttpGet("calendar")]
-    public async Task<IActionResult> Calendar([FromQuery] CalendarAppointmentQuery query)
+    public async Task<IActionResult> Calendar([FromQuery] GetCalendarAppointmentQuery query)
     {
         var response = await Mediator.Send(query);
         return Ok(response);
     }
     
-    [HttpPost("book")]
+    [HttpPost]
     public async Task<IActionResult> Book([FromBody] BookAppointmentCommand command)
     {
         var response = await Mediator.Send(command);

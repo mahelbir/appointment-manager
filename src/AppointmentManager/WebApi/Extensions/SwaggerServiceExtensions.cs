@@ -13,7 +13,7 @@ public static class SwaggerServiceExtensions
             {
                 Type = "string",
                 Format = "date",
-                Example = new OpenApiString(DateTime.Now.ToUniversalTime().ToString("yyyy-MM-dd")),
+                Example = new OpenApiString(DateTime.UtcNow.ToString("yyyy-MM-dd")),
             });
         });
 
