@@ -33,16 +33,11 @@ public class ConfirmAppointmentCommand : IRequest<ConfirmedAppointmentResponse>
         public async Task<ConfirmedAppointmentResponse> Handle(ConfirmAppointmentCommand request,
             CancellationToken cancellationToken)
         {
-            var appointment = await _appointmentRepository.GetAsync(
-                predicate: a => a.Id == request.Id,
-                cancellationToken: cancellationToken
-            );
-
-            await _appointmentBusinessRules.ShouldBeExists(appointment);
-            await _appointmentBusinessRules.CantCancelled(appointment);
+            var appointment = await _appointmentBusinessRules.ShouldBeExistId(request.Id);
+            _appointmentBusinessRules.CantCancelled(appointment);
 
             appointment.Status = AppointmentStatus.Confirmed;
-            
+
             await _calendarControlService.UpdateCalendarEventColor(
                 appointment,
                 cancellationToken

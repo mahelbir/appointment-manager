@@ -1,3 +1,4 @@
+using Application.Features.Clients.Commands.Update;
 using Application.Features.Clients.Queries.GetById;
 using Application.Features.Clients.Queries.GetList;
 using Microsoft.AspNetCore.Mvc;
@@ -23,4 +24,13 @@ public class ClientsController: BaseController
         var response = await Mediator.Send(query);
         return Ok(response);
     }
+    
+    [HttpPut("{id:int}")]
+    public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateClientCommand command)
+    {
+        command.Id = id;
+        var response = await Mediator.Send(command);
+        return Ok(response);
+    }
+    
 }

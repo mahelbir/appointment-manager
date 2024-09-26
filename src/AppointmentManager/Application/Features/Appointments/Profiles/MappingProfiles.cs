@@ -21,32 +21,32 @@ public class MappingProfiles : Profile
     public MappingProfiles()
     {
         CreateMap<Appointment, CalendarAppointment>().ReverseMap();
-        
-        CreateMap<Client, BookAppointmentCommand.BookAppointmentCommandClient>().ReverseMap();
+
         CreateMap<Appointment, BookAppointmentCommand>().ReverseMap();
         CreateMap<Appointment, BookedAppointmentResponse>().ReverseMap();
-        
+        CreateMap<Client, BookAppointmentCommand.BookAppointmentCommandClient>().ReverseMap();
+
         CreateMap<Appointment, BusyAppointmentCommand>().ReverseMap();
         CreateMap<Appointment, BusyAppointmentResponse>().ReverseMap();
-        
-        CreateMap<Client, UpdateAppointmentCommand.UpdateAppointmentCommandClient>().ReverseMap();
+
+        CreateMap<Appointment, CanceledAppointmentResponse>().ReverseMap();
+
+        CreateMap<Appointment, ConfirmedAppointmentResponse>().ReverseMap();
+
         CreateMap<Appointment, UpdateAppointmentCommand>().ReverseMap();
         CreateMap<Appointment, UpdatedAppointmentResponse>().ReverseMap();
-        
-        CreateMap<Appointment, CanceledAppointmentResponse>().ReverseMap();
-        
-        CreateMap<Appointment, ConfirmedAppointmentResponse>().ReverseMap();
-        
-        CreateMap<Appointment, GetListAppointmentListItemDto>().ReverseMap();
-        CreateMap<IPaginate<Appointment>, GetListResponse<GetListAppointmentListItemDto>>().ReverseMap();
-        
+
         CreateMap<Appointment, GetByIdAppointmentResponse>().ReverseMap();
         
         CreateMap<Appointment, GetCalendarAppointmentListItemDto>()
             .ForMember(dest => dest.Props, opt => opt.MapFrom(src => src.Status.GetProps()))
-            .ReverseMap()
-            .ForPath(src => src.Status.GetProps(), opt => opt.MapFrom(dest => dest.Props));
+            .ReverseMap();
         
-        CreateMap<Appointment, GetDetailedCalendarAppointmentListItemDto>().ReverseMap();
+        CreateMap<Appointment, GetDetailedCalendarAppointmentListItemDto>()
+            .ForMember(dest => dest.Props, opt => opt.MapFrom(src => src.Status.GetProps()))
+            .ReverseMap();
+
+        CreateMap<Appointment, GetListAppointmentListItemDto>().ReverseMap();
+        CreateMap<IPaginate<Appointment>, GetListResponse<GetListAppointmentListItemDto>>().ReverseMap();
     }
 }

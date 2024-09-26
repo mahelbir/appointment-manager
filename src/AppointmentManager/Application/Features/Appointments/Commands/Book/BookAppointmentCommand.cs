@@ -41,16 +41,16 @@ public class BookAppointmentCommand : IRequest<BookedAppointmentResponse>
         public async Task<BookedAppointmentResponse> Handle(BookAppointmentCommand request,
             CancellationToken cancellationToken)
         {
-            await _appointmentBusinessRules.CantPastTime(request.StartDate, request.EndDate);
-            await _appointmentBusinessRules.CantOverlap(request.StartDate, request.EndDate);
-
             request.StartDate = request.StartDate.ToUniversalTime();
             request.EndDate = request.EndDate.ToUniversalTime();
+            
+            _appointmentBusinessRules.CantPastTime(request.StartDate, request.EndDate);
+            await _appointmentBusinessRules.CantOverlap(request.StartDate, request.EndDate);
 
             var appointment = _mapper.Map<Appointment>(request);
             appointment.Status = AppointmentStatus.Pending;
             appointment.Client.CreatedDate = DateTime.UtcNow;
-            
+
             appointment = await _calendarControlService.AddCalendarEvent(appointment, cancellationToken);
 
             await _appointmentRepository.AddAsync(appointment, cancellationToken);

@@ -1,9 +1,9 @@
+using Application.Extensions;
 using Application.Features.Appointments.Constants;
 using Application.Services.AppointmentService;
 using Application.Services.Repositories;
 using Domain.Entities;
 using Domain.Enums;
-using Microsoft.EntityFrameworkCore;
 using NArchitecture.Core.Application.Rules;
 using NArchitecture.Core.CrossCuttingConcerns.Exception.Types;
 
@@ -22,23 +22,27 @@ public class AppointmentBusinessRules : BaseBusinessRules
         _appointmentService = appointmentService;
     }
 
-    public async Task ShouldBeExists(Appointment? appointment)
+    public async Task<Appointment> ShouldBeExistId(int id)
     {
+        var appointment = await _appointmentRepository.GetAsync(
+            predicate: a => a.Id == id
+        );
         if (appointment == null)
             throw new BusinessException(AppointmentsMessages.DontExists);
+        return appointment;
     }
 
-    public async Task DateRangeCantTooLarge(DateOnly startDate, DateOnly endDate)
+    public void DateRangeCantTooLarge(DateOnly startDate, DateOnly endDate)
     {
-        var timeSpan = endDate.ToDateTime(TimeOnly.MaxValue).ToUniversalTime() -
-                       startDate.ToDateTime(TimeOnly.MinValue).ToUniversalTime();
+        var timeSpan = endDate.UtcMax() -
+                       startDate.UtcMin();
         if (timeSpan.TotalDays > 31)
         {
             throw new BusinessException(AppointmentsMessages.DateRangeTooLarge);
         }
     }
 
-    public async Task CantPastTime(DateTime startDate, DateTime endDate)
+    public void CantPastTime(DateTime startDate, DateTime endDate)
     {
         startDate = startDate.ToUniversalTime();
         endDate = endDate.ToUniversalTime();
@@ -49,7 +53,7 @@ public class AppointmentBusinessRules : BaseBusinessRules
         }
     }
 
-    public async Task CantLessTime(DateTime startDate, DateTime endDate, DateTime appointmentStartDate,
+    public void CantLessTime(DateTime startDate, DateTime endDate, DateTime appointmentStartDate,
         DateTime appointmentEndDate)
     {
         startDate = startDate.ToUniversalTime();
@@ -65,44 +69,28 @@ public class AppointmentBusinessRules : BaseBusinessRules
     {
         startDate = startDate.ToUniversalTime();
         endDate = endDate.ToUniversalTime();
-
-        if (id)
-        {
-            if (_appointmentRepository.IsOverlap())
-            {
-                
-            }
-        }
-
-        if (appointment == null) return;
-
-        if (id == 0 || id != appointment.Id)
+        bool isOverlap = (id > 0)
+            ? await _appointmentRepository.IsOverlap(startDate, endDate, id)
+            : await _appointmentRepository.IsOverlap(startDate, endDate);
+        if (isOverlap)
         {
             throw new BusinessException(AppointmentsMessages.Overlap);
         }
     }
-    
-    public async Task CantCancelled(Appointment appointment)
+
+    public void CantCancelled(Appointment appointment)
     {
         if (appointment.Status == AppointmentStatus.Cancelled)
         {
             throw new BusinessException(AppointmentsMessages.InvalidStatus);
         }
     }
-    
-    public async Task CantEmpty(string? t)
+
+    public void CantEmpty(string? t)
     {
         if (string.IsNullOrEmpty(t))
         {
             throw new BusinessException(AppointmentsMessages.Wrong);
-        }
-    }
-    
-    public async Task TokenShouldMatch(string calendarToken, string? requestToken)
-    {
-        if (calendarToken != requestToken)
-        {
-            throw new BusinessException(AppointmentsMessages.NotMatch);
         }
     }
     

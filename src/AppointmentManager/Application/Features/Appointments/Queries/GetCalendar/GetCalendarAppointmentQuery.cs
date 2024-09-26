@@ -36,13 +36,13 @@ public class GetCalendarAppointmentQuery : IRequest<IEnumerable<GetCalendarAppoi
             GetCalendarAppointmentQuery request,
             CancellationToken cancellationToken)
         {
-            await _appointmentBusinessRules.DateRangeCantTooLarge(request.StartDate, request.EndDate);
+            _appointmentBusinessRules.DateRangeCantTooLarge(request.StartDate, request.EndDate);
 
-            var inStatus = _appointmentRepository.InStatus(_appointmentService.GetVisibleAppointmentStatusList());
+            var statusList = _appointmentService.GetVisibleAppointmentStatusList();
             var appointments = await _appointmentRepository.GetListByDateRange(
-                inStatus,
                 request.StartDate.UtcMin(),
-                request.EndDate.UtcMax()
+                request.EndDate.UtcMax(),
+                statusList
             );
 
             var response =

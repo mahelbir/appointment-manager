@@ -15,29 +15,27 @@ public class AppointmentRepository : EfRepositoryBase<Appointment, int, BaseDbCo
     {
     }
 
-    public IQueryable<Appointment> InStatus(IEnumerable<AppointmentStatus> statuses)
+    public async Task<IEnumerable<Appointment>> GetListByDateRange(DateTime startDate, DateTime endDate,
+        List<AppointmentStatus> statusList)
     {
-        return Query().Where(a => statuses.Contains(a.Status));
-    }
-
-    public async Task<IEnumerable<Appointment>> GetListByDateRange(IQueryable<Appointment> query, DateTime startDate, DateTime endDate)
-    {
-        return await query.Where(a =>
-            a.StartDate >= startDate &&
-            a.EndDate <= endDate
-        ).ToListAsync();
+        return await Query()
+            .Where(a => statusList.Contains(a.Status))
+            .Where(a =>
+                a.StartDate >= startDate &&
+                a.EndDate <= endDate
+            )
+            .ToListAsync();
     }
 
     public async Task<IEnumerable<Appointment>> GetListDetailedByDateRange(DateTime startDate, DateTime endDate)
     {
-        var q = Query()
+        return await Query()
             .Include(a => a.Client)
             .Where(a =>
                 a.StartDate >= startDate &&
                 a.EndDate <= endDate
-            );
-
-        return await q.ToListAsync();
+            )
+            .ToListAsync();
     }
 
     public async Task<Appointment?> GetByCalendarEventId(string calendarEventId)
@@ -48,7 +46,19 @@ public class AppointmentRepository : EfRepositoryBase<Appointment, int, BaseDbCo
         );
     }
 
-    public async Task<bool> IsOverlap(IQueryable<Appointment> query, DateTime startDate, DateTime endDate)
+    public async Task<bool> IsOverlap(DateTime startDate, DateTime endDate)
+    {
+        return await IsOverlap(Query(), startDate, endDate);
+    }
+
+    public async Task<bool> IsOverlap(DateTime startDate, DateTime endDate, int id)
+    {
+        var query = Query()
+            .Where(a => a.Id != id);
+        return await IsOverlap(query, startDate, endDate);
+    }
+
+    private async Task<bool> IsOverlap(IQueryable<Appointment> query, DateTime startDate, DateTime endDate)
     {
         return await query
             .Where(a =>
@@ -57,11 +67,5 @@ public class AppointmentRepository : EfRepositoryBase<Appointment, int, BaseDbCo
                     (startDate <= a.StartDate && endDate >= a.EndDate) // yeni randevu mevcut randevuyu kapsıyor
             )
             .AnyAsync();
-    }
-
-    public async Task<bool> IsOverlap(IQueryable<Appointment> query, DateTime startDate, DateTime endDate, int id)
-    {
-        query = query.Where(a => a.Id != id);
-        return await IsOverlap(query, startDate, endDate);
     }
 }

@@ -1,37 +1,32 @@
-using System.Text.RegularExpressions;
 using Application.Extensions;
 using NArchitecture.Core.CrossCuttingConcerns.Exception.Types;
 using Application.Features.Appointments.Constants;
-using Application.Features.Appointments.Rules;
-using Application.Services.AppointmentService;
 using Application.Services.CalendarService;
-using Application.Services.Repositories;
 using Domain.Entities;
-using Domain.Enums;
 using Domain.Models;
 
 namespace Application.Services.CalendarControlService;
 
 public class CalendarControlManager : ICalendarControlService
 {
-    private readonly IAppointmentRepository _appointmentRepository;
-    private readonly IAppointmentService _appointmentService;
     private readonly ICalendarService _calendarService;
-    private readonly AppointmentBusinessRules _appointmentBusinessRules;
-
-    public CalendarControlManager(IAppointmentRepository appointmentRepository, IAppointmentService appointmentService,
-        ICalendarService calendarService, AppointmentBusinessRules appointmentBusinessRules)
+    
+    public CalendarControlManager(ICalendarService calendarService)
     {
-        _appointmentRepository = appointmentRepository;
-        _appointmentService = appointmentService;
         _calendarService = calendarService;
-        _appointmentBusinessRules = appointmentBusinessRules;
     }
 
     public async Task ValidateCalendarToken(string token)
     {
-        await _appointmentBusinessRules.CantEmpty(token);
-        await _appointmentBusinessRules.TokenShouldMatch(token, _calendarService.CalendarToken);
+        if (string.IsNullOrEmpty(token))
+        {
+            throw new BusinessException("Token gerekli");
+        }
+
+        if (token != _calendarService.CalendarToken)
+        {
+            throw new BusinessException("Token eşleşmiyor");
+        }
     }
 
     private CalendarEvent CreateCalendarEvent(Appointment appointment)
@@ -82,120 +77,9 @@ public class CalendarControlManager : ICalendarControlService
         }
     }
 
-    public async Task ReceiveCalendarEvents(CancellationToken cancellationToken)
+    public async Task<IEnumerable<CalendarEvent>> GetUpdatedEvents()
     {
-        var calendarEvents = await _calendarService.GetUpdatedEvents();
-        foreach (var calendarEvent in calendarEvents)
-        {
-            try
-            {
-                var appointment = await _appointmentRepository.GetByCalendarEventId(calendarEvent.Id);
-                if (appointment != null)
-                {
-                    await UpdateReceivedCalendarEvent(appointment, calendarEvent, cancellationToken);
-                }
-                else
-                {
-                    await AddReceivedCalendarEvent(calendarEvent, cancellationToken);
-                }
-            }
-            catch (Exception ex)
-            {
-            }
-        }
+        return await _calendarService.GetUpdatedEvents();
     }
-
-    private async Task<Appointment?> AddReceivedCalendarEvent(CalendarEvent calendarEvent,
-        CancellationToken cancellationToken)
-    {
-        if (calendarEvent.Status == "cancelled") return null;
-
-        await _appointmentBusinessRules.CantOverlap(calendarEvent.StartDate, calendarEvent.EndDate);
-
-        var appointmentStatusProps = _appointmentService
-            .GetAppointmentStatusList()
-            .Select(s => s.GetProps())
-            .FirstOrDefault(s => s.ColorId == calendarEvent.Color);
-        var client = ParseClientFromDescription(calendarEvent.Description);
-        client.CreatedDate = DateTime.UtcNow;
-        var appointment = new Appointment
-        {
-            StartDate = calendarEvent.StartDate,
-            EndDate = calendarEvent.EndDate,
-            Status = appointmentStatusProps.Status,
-            CalendarEventId = calendarEvent.Id,
-            Client = client
-        };
-
-        return await _appointmentRepository.AddAsync(appointment, cancellationToken);
-    }
-
-    private async Task<Appointment> UpdateReceivedCalendarEvent(Appointment appointment, CalendarEvent calendarEvent,
-        CancellationToken cancellationToken)
-    {
-        if (calendarEvent.Status == "cancelled")
-        {
-            return await SetCanceled();
-        }
-
-        var appointmentStatusProps = _appointmentService
-            .GetAppointmentStatusList()
-            .Select(s => s.GetProps())
-            .FirstOrDefault(s => s.ColorId == calendarEvent.Color);
-
-        if (appointmentStatusProps == null || appointmentStatusProps.Status == AppointmentStatus.Cancelled)
-        {
-            return await SetCanceled();
-        }
-
-        await _appointmentBusinessRules.CantOverlap(calendarEvent.StartDate, calendarEvent.EndDate, appointment.Id);
-
-        appointment.StartDate = calendarEvent.StartDate;
-        appointment.EndDate = calendarEvent.EndDate;
-        appointment.Status = appointmentStatusProps.Status;
-
-        if (appointment.Client != null)
-        {
-            var client = ParseClientFromDescription(calendarEvent.Description);
-            appointment.Client.FirstName = client.FirstName;
-            appointment.Client.LastName = client.LastName;
-            appointment.Client.Contact = client.Contact;
-            appointment.Client.UpdatedDate = DateTime.UtcNow;
-        }
-
-        await _appointmentRepository.UpdateAsync(appointment, cancellationToken);
-
-        return appointment;
-
-        async Task<Appointment> SetCanceled()
-        {
-            if (appointment.Status != AppointmentStatus.Cancelled)
-            {
-                appointment.Status = AppointmentStatus.Cancelled;
-                await _appointmentRepository.UpdateAsync(appointment, cancellationToken);
-            }
-
-            return appointment;
-        }
-    }
-
-    private static Client ParseClientFromDescription(string description)
-    {
-        description = description.Replace("<br>", "\n");
-        var lines = description
-            .Split('\n')
-            .Select(s => Regex.Replace(s, "<.*?>", String.Empty).Trim())
-            .ToArray();
-
-        var nameField = lines[0];
-        var names = nameField.Contains(' ') ? nameField.Split(' ', 2) : [nameField, ""];
-        var contact = lines.Length > 1 ? lines[1] : "";
-
-        return new Client
-        {
-            FirstName = names[0],
-            LastName = names[1],
-            Contact = contact
-        };
-    }
+    
 }

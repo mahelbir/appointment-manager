@@ -9,6 +9,6 @@ public class BookedAppointmentResponse
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
     public AppointmentStatus Status { get; set; }
-    public DateTime CreatedDate { get; set; }
     public GetByIdClientResponse Client { get; set; }
+    public DateTime CreatedDate { get; set; }
 }

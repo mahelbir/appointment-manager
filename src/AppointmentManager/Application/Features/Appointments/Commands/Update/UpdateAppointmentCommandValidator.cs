@@ -15,18 +15,5 @@ public class UpdateAppointmentCommandValidator : AbstractValidator<UpdateAppoint
             .NotEmpty()
             .NotNull()
             .GreaterThan(a => a.StartDate);
-
-        RuleFor(a => a.Client.FirstName)
-            .NotEmpty()
-            .NotNull();
-
-        RuleFor(a => a.Client.LastName)
-            .NotEmpty()
-            .NotNull();
-
-        RuleFor(a => a.Client.Contact)
-            .NotEmpty()
-            .NotNull()
-            .MinimumLength(5);
     }
 }

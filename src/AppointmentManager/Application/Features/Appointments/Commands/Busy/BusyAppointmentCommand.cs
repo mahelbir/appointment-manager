@@ -33,10 +33,10 @@ public class BusyAppointmentCommand : IRequest<BusyAppointmentResponse>
         public async Task<BusyAppointmentResponse> Handle(BusyAppointmentCommand request,
             CancellationToken cancellationToken)
         {
-            await _appointmentBusinessRules.CantOverlap(request.StartDate, request.EndDate);
-            
             request.StartDate = request.StartDate.ToUniversalTime();
             request.EndDate = request.EndDate.ToUniversalTime();
+            
+            await _appointmentBusinessRules.CantOverlap(request.StartDate, request.EndDate);
             
             var appointment = _mapper.Map<Appointment>(request);
             appointment.Client = await _clientRepository.GetAsync(

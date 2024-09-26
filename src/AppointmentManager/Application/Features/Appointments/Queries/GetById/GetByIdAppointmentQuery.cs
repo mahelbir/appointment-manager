@@ -2,7 +2,6 @@ using Application.Features.Appointments.Rules;
 using Application.Services.Repositories;
 using AutoMapper;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 namespace Application.Features.Appointments.Queries.GetById;
 
@@ -27,14 +26,9 @@ public class GetByIdAppointmentQuery : IRequest<GetByIdAppointmentResponse>
         public async Task<GetByIdAppointmentResponse> Handle(GetByIdAppointmentQuery request,
             CancellationToken cancellationToken)
         {
-            var result = await _appointmentRepository.GetAsync(
-                predicate: a => a.Id == request.Id,
-                cancellationToken: cancellationToken
-            );
+            var appointment = await _appointmentBusinessRules.ShouldBeExistId(request.Id);
 
-            await _appointmentBusinessRules.ShouldBeExists(result);
-
-            var response = _mapper.Map<GetByIdAppointmentResponse>(result);
+            var response = _mapper.Map<GetByIdAppointmentResponse>(appointment);
             return response;
         }
     }
