@@ -1,3 +1,4 @@
+using Application.Extensions;
 using Application.Features.Appointments.Commands.Book;
 using Application.Features.Appointments.Commands.Busy;
 using Application.Features.Appointments.Commands.Cancel;
@@ -41,7 +42,10 @@ public class MappingProfiles : Profile
         
         CreateMap<Appointment, GetByIdAppointmentResponse>().ReverseMap();
         
-        CreateMap<Appointment, GetCalendarAppointmentListItemDto>().ReverseMap();
+        CreateMap<Appointment, GetCalendarAppointmentListItemDto>()
+            .ForMember(dest => dest.Props, opt => opt.MapFrom(src => src.Status.GetProps()))
+            .ReverseMap()
+            .ForPath(src => src.Status.GetProps(), opt => opt.MapFrom(dest => dest.Props));
         
         CreateMap<Appointment, GetDetailedCalendarAppointmentListItemDto>().ReverseMap();
     }

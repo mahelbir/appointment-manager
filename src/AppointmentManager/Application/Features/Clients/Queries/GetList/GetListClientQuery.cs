@@ -1,3 +1,4 @@
+using Application.Extensions;
 using Application.Services.Repositories;
 using AutoMapper;
 using Domain.Entities;
@@ -25,12 +26,9 @@ public class GetListClientQuery: IRequest<GetListResponse<GetListClientListItemD
 
         public async Task<GetListResponse<GetListClientListItemDto>> Handle(GetListClientQuery request, CancellationToken cancellationToken)
         {
-            var pageSize = request.PageRequest.PageSize > 0 ? Math.Min(100, request.PageRequest.PageSize) : 20;
-            var pageIndex = Math.Max(0, request.PageRequest.PageIndex);
-
             IPaginate<Client> users = await _clientRepository.GetListAsync(
-                index: pageIndex,
-                size: pageSize,
+                index: request.PageRequest.PageIndexNormalized(),
+                size: request.PageRequest.PageSizeNormalized(),
                 enableTracking: false,
                 cancellationToken: cancellationToken
             );

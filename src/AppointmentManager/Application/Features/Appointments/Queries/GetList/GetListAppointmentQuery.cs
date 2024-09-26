@@ -1,3 +1,4 @@
+using Application.Extensions;
 using Application.Services.Repositories;
 using AutoMapper;
 using Domain.Entities;
@@ -27,12 +28,9 @@ public class GetListAppointmentQuery : IRequest<GetListResponse<GetListAppointme
         public async Task<GetListResponse<GetListAppointmentListItemDto>> Handle(GetListAppointmentQuery request,
             CancellationToken cancellationToken)
         {
-            var pageSize = request.PageRequest.PageSize > 0 ? Math.Min(100, request.PageRequest.PageSize) : 20;
-            var pageIndex = Math.Max(0, request.PageRequest.PageIndex);
-
             IPaginate<Appointment> users = await _appointmentRepository.GetListAsync(
-                index: pageIndex,
-                size: pageSize,
+                index: request.PageRequest.PageIndexNormalized(),
+                size: request.PageRequest.PageSizeNormalized(),
                 enableTracking: false,
                 cancellationToken: cancellationToken
             );

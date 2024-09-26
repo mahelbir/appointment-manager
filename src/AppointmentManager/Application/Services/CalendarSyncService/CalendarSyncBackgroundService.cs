@@ -6,7 +6,7 @@ namespace Application.Services.CalendarSyncService;
 public class CalendarSyncBackgroundService : BackgroundService
 {
     private readonly ILogger<CalendarSyncBackgroundService> _logger;
-    ICalendarSyncService _calendarSyncService;
+    private readonly ICalendarSyncService _calendarSyncService;
 
     public CalendarSyncBackgroundService(ILogger<CalendarSyncBackgroundService> logger,
         ICalendarSyncService calendarSyncService)

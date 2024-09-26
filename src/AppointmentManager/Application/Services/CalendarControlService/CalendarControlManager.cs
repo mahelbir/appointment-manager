@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using Application.Extensions;
 using NArchitecture.Core.CrossCuttingConcerns.Exception.Types;
 using Application.Features.Appointments.Constants;
 using Application.Features.Appointments.Rules;
@@ -27,9 +28,15 @@ public class CalendarControlManager : ICalendarControlService
         _appointmentBusinessRules = appointmentBusinessRules;
     }
 
+    public async Task ValidateCalendarToken(string token)
+    {
+        await _appointmentBusinessRules.CantEmpty(token);
+        await _appointmentBusinessRules.TokenShouldMatch(token, _calendarService.CalendarToken);
+    }
+
     private CalendarEvent CreateCalendarEvent(Appointment appointment)
     {
-        var appointmentStatusProps = _appointmentService.GetAppointmentStatus(appointment.Status);
+        var appointmentStatusProps = appointment.Status.GetProps();
         var calendarEvent = new CalendarEvent
         {
             Title = AppointmentsMessages.Appointment,
@@ -40,12 +47,6 @@ public class CalendarControlManager : ICalendarControlService
             EndDate = appointment.EndDate
         };
         return calendarEvent;
-    }
-
-    public async Task ValidateCalendarToken(string token)
-    {
-        await _appointmentBusinessRules.CantEmpty(token);
-        await _appointmentBusinessRules.TokenShouldMatch(token, _calendarService.CalendarToken);
     }
 
     public async Task<Appointment> AddCalendarEvent(Appointment appointment, CancellationToken cancellationToken)
@@ -71,7 +72,7 @@ public class CalendarControlManager : ICalendarControlService
 
     public async Task UpdateCalendarEventColor(Appointment appointment, CancellationToken cancellationToken)
     {
-        var appointmentStatusProps = _appointmentService.GetAppointmentStatus(appointment.Status);
+        var appointmentStatusProps = appointment.Status.GetProps();
         var color = appointmentStatusProps.ColorId;
         var calendarEvent =
             await _calendarService.UpdateEventColor(appointment.CalendarEventId, color, cancellationToken);
@@ -88,7 +89,7 @@ public class CalendarControlManager : ICalendarControlService
         {
             try
             {
-                var appointment = await _appointmentService.GetByCalendarEventId(calendarEvent.Id);
+                var appointment = await _appointmentRepository.GetByCalendarEventId(calendarEvent.Id);
                 if (appointment != null)
                 {
                     await UpdateReceivedCalendarEvent(appointment, calendarEvent, cancellationToken);
@@ -100,7 +101,6 @@ public class CalendarControlManager : ICalendarControlService
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
             }
         }
     }
@@ -112,8 +112,10 @@ public class CalendarControlManager : ICalendarControlService
 
         await _appointmentBusinessRules.CantOverlap(calendarEvent.StartDate, calendarEvent.EndDate);
 
-        var appointmentStatusProps = _appointmentService.GetAppointmentStatuses().Values
-            .First(s => s.ColorId == calendarEvent.Color);
+        var appointmentStatusProps = _appointmentService
+            .GetAppointmentStatusList()
+            .Select(s => s.GetProps())
+            .FirstOrDefault(s => s.ColorId == calendarEvent.Color);
         var client = ParseClientFromDescription(calendarEvent.Description);
         client.CreatedDate = DateTime.UtcNow;
         var appointment = new Appointment
@@ -136,14 +138,16 @@ public class CalendarControlManager : ICalendarControlService
             return await SetCanceled();
         }
 
-        var appointmentStatusProps = _appointmentService.GetAppointmentStatuses().Values
+        var appointmentStatusProps = _appointmentService
+            .GetAppointmentStatusList()
+            .Select(s => s.GetProps())
             .FirstOrDefault(s => s.ColorId == calendarEvent.Color);
 
         if (appointmentStatusProps == null || appointmentStatusProps.Status == AppointmentStatus.Cancelled)
         {
             return await SetCanceled();
         }
-        
+
         await _appointmentBusinessRules.CantOverlap(calendarEvent.StartDate, calendarEvent.EndDate, appointment.Id);
 
         appointment.StartDate = calendarEvent.StartDate;

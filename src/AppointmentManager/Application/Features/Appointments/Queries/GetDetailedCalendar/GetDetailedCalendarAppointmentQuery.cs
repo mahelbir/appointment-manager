@@ -1,4 +1,6 @@
+using Application.Extensions;
 using Application.Services.AppointmentService;
+using Application.Services.Repositories;
 using AutoMapper;
 using Domain.Entities;
 using MediatR;
@@ -14,13 +16,12 @@ public class GetDetailedCalendarAppointmentQuery : IRequest<IEnumerable<GetDetai
         CalendarAdminAppointmentQueryQueryHandler : IRequestHandler<GetDetailedCalendarAppointmentQuery,
         IEnumerable<GetDetailedCalendarAppointmentListItemDto>>
     {
-        private readonly IAppointmentService _appointmentService;
+        private readonly IAppointmentRepository _appointmetRepository;
         private readonly IMapper _mapper;
 
-
-        public CalendarAdminAppointmentQueryQueryHandler(IAppointmentService appointmentService, IMapper mapper)
+        public CalendarAdminAppointmentQueryQueryHandler(IAppointmentRepository appointmetRepository, IMapper mapper)
         {
-            _appointmentService = appointmentService;
+            _appointmetRepository = appointmetRepository;
             _mapper = mapper;
         }
 
@@ -28,17 +29,14 @@ public class GetDetailedCalendarAppointmentQuery : IRequest<IEnumerable<GetDetai
             GetDetailedCalendarAppointmentQuery request,
             CancellationToken cancellationToken)
         {
-            var appointments = await _appointmentService.GetListDetailedByDateRange(request.StartDate, request.EndDate);
+            var appointments = await _appointmetRepository.GetListDetailedByDateRange(
+                request.StartDate.UtcMin(),
+                request.EndDate.UtcMax()
+            );
 
-            var list =
-                _mapper.Map<IEnumerable<Appointment>, List<GetDetailedCalendarAppointmentListItemDto>>(
-                    appointments);
-            foreach (var item in list)
-            {
-                item.Props = _appointmentService.GetAppointmentStatus(item.Status);
-            }
-
-            return list;
+            var response =
+                _mapper.Map<IEnumerable<Appointment>, List<GetDetailedCalendarAppointmentListItemDto>>(appointments);
+            return response;
         }
     }
 }

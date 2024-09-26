@@ -66,16 +66,13 @@ public class AppointmentBusinessRules : BaseBusinessRules
         startDate = startDate.ToUniversalTime();
         endDate = endDate.ToUniversalTime();
 
-        var appointment = await _appointmentRepository.Query()
-            .Where(a =>
-                _appointmentService.GetVisibleAppointmentStatuses().Contains(a.Status) &&
-                (
-                    (startDate >= a.StartDate && startDate < a.EndDate) || // başlangıç mevcut randevunun içinde 
-                    (endDate > a.StartDate && endDate <= a.EndDate) || // bitiş mevcut randevunun içinde
-                    (startDate <= a.StartDate && endDate >= a.EndDate) // yeni randevu mevcut randevuyu kapsıyor
-                )
-            )
-            .FirstOrDefaultAsync();
+        if (id)
+        {
+            if (_appointmentRepository.IsOverlap())
+            {
+                
+            }
+        }
 
         if (appointment == null) return;
 

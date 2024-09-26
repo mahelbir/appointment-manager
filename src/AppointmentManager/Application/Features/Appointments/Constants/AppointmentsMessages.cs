@@ -2,11 +2,6 @@ namespace Application.Features.Appointments.Constants;
 
 public static class AppointmentsMessages
 {
-    public const string AppointmentStatusPending = "MEŞGUL";
-    public const string AppointmentStatusConfirmed = "REZERVE";
-    public const string AppointmentStatusCancelled = "İPTAL";
-    public const string AppointmentStatusBusy = "MÜSAİT DEĞİL";
-    
     public const string Appointment = "Randevu";
     public const string Wrong = "Geçersiz değer";
     public const string NotMatch = "Değer eşleşmiyor";
