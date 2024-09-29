@@ -1,5 +1,5 @@
+using Infrastructure.Adapters.CalendarService.GoogleCalendar.Models;
 using Application.Services.CalendarSyncService;
-using Infrastructure.Adapters.CalendarService.GoogleCalendar;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 

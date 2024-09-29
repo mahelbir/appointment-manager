@@ -2,6 +2,7 @@ using System.Reflection;
 using Application.Services.CalendarService;
 using Application.Services.CalendarSyncService;
 using Infrastructure.Adapters.CalendarService.GoogleCalendar;
+using Infrastructure.Adapters.CalendarService.GoogleCalendar.Models;
 using Infrastructure.Adapters.CalendarSyncService.GoogleCalendarSync;
 using Microsoft.Extensions.DependencyInjection;
 

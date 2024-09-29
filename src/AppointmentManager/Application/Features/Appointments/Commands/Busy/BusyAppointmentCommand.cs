@@ -39,6 +39,7 @@ public class BusyAppointmentCommand : IRequest<BusyAppointmentResponse>
             await _appointmentBusinessRules.CantOverlap(request.StartDate, request.EndDate);
             
             var appointment = _mapper.Map<Appointment>(request);
+            appointment.Status = AppointmentStatus.Busy;
             appointment.Client = await _clientRepository.GetAsync(
                 predicate: c => c.Contact == "admin@admin.com",
                 cancellationToken: cancellationToken
@@ -49,10 +50,10 @@ public class BusyAppointmentCommand : IRequest<BusyAppointmentResponse>
                 Contact = "admin@admin.com",
                 CreatedDate = DateTime.UtcNow
             };
-            appointment.Status = AppointmentStatus.Busy;
             appointment.Client.CreatedDate = DateTime.UtcNow;
             
-            appointment = await _calendarControlService.AddCalendarEvent(appointment, cancellationToken);
+            var calendarEvent = await _calendarControlService.AddCalendarEvent(appointment, cancellationToken);
+            appointment.CalendarEventId = calendarEvent.Id;
             
             await _appointmentRepository.AddAsync(appointment, cancellationToken);
 

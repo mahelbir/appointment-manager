@@ -34,8 +34,7 @@ public class AppointmentBusinessRules : BaseBusinessRules
 
     public void DateRangeCantTooLarge(DateOnly startDate, DateOnly endDate)
     {
-        var timeSpan = endDate.UtcMax() -
-                       startDate.UtcMin();
+        var timeSpan = endDate.UtcMax() - startDate.UtcMin();
         if (timeSpan.TotalDays > 31)
         {
             throw new BusinessException(AppointmentsMessages.DateRangeTooLarge);
@@ -93,5 +92,4 @@ public class AppointmentBusinessRules : BaseBusinessRules
             throw new BusinessException(AppointmentsMessages.Wrong);
         }
     }
-    
 }

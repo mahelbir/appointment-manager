@@ -34,17 +34,19 @@ public class UpdateAppointmentCommand : IRequest<UpdatedAppointmentResponse>
         {
             request.StartDate = request.StartDate.ToUniversalTime();
             request.EndDate = request.EndDate.ToUniversalTime();
-            
+
             var appointment = await _appointmentBusinessRules.ShouldBeExistId(request.Id);
-            appointment.StartDate = appointment.StartDate.ToUniversalTime();
-            appointment.EndDate = appointment.EndDate.ToUniversalTime();
-            _appointmentBusinessRules.CantLessTime(request.StartDate, request.EndDate, appointment.StartDate,
-                appointment.EndDate);
+            _appointmentBusinessRules.CantLessTime(
+                request.StartDate,
+                request.EndDate,
+                appointment.StartDate,
+                appointment.EndDate
+            );
             await _appointmentBusinessRules.CantOverlap(request.StartDate, request.EndDate, appointment.Id);
 
             appointment = _mapper.Map(request, appointment);
 
-            appointment = await _calendarControlService.UpdateCalendarEvent(appointment, cancellationToken);
+            await _calendarControlService.UpdateCalendarEvent(appointment, cancellationToken);
 
             await _appointmentRepository.UpdateAsync(appointment, cancellationToken);
 

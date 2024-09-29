@@ -51,7 +51,8 @@ public class BookAppointmentCommand : IRequest<BookedAppointmentResponse>
             appointment.Status = AppointmentStatus.Pending;
             appointment.Client.CreatedDate = DateTime.UtcNow;
 
-            appointment = await _calendarControlService.AddCalendarEvent(appointment, cancellationToken);
+            var calendarEvent = await _calendarControlService.AddCalendarEvent(appointment, cancellationToken);
+            appointment.CalendarEventId = calendarEvent.Id;
 
             await _appointmentRepository.AddAsync(appointment, cancellationToken);
 

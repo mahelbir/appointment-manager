@@ -1,6 +1,6 @@
 using Application.Services.CalendarService;
 
-namespace Infrastructure.Adapters.CalendarService.GoogleCalendar;
+namespace Infrastructure.Adapters.CalendarService.GoogleCalendar.Models;
 
 public interface IGoogleCalendarService: ICalendarService
 {

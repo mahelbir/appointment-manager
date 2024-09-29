@@ -1,4 +1,4 @@
-namespace Infrastructure.Adapters.CalendarService.GoogleCalendar;
+namespace Infrastructure.Adapters.CalendarService.GoogleCalendar.Models;
 
 public class GoogleCalendarChannel
 {
